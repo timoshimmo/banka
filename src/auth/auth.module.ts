@@ -5,10 +5,12 @@ import { PassportModule } from '@nestjs/passport';
 import { AccountModule } from 'src/account/account.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   imports: [
     AccountModule,
+    OtpModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

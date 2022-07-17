@@ -10,4 +10,8 @@ export class AccountService {
   async findOne(email: string): Promise<User | null> {
     return this.userModel.findOne({ email });
   }
+
+  async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
+    return await this.userModel.findOne({ phoneNumber });
+  }
 }

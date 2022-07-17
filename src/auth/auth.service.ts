@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { IUser } from 'src/domain/models/user.model';
 import { RegisterDto } from 'src/domain/dto/register.dto';
+import { OtpService } from 'src/otp/otp.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
-    private accountService: AccountService,
-    private jwtService: JwtService,
+    private readonly accountService: AccountService,
+    private readonly jwtService: JwtService,
+    private readonly otpService: OtpService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -30,5 +34,23 @@ export class AuthService {
     };
   }
 
-  async register(value: RegisterDto) {}
+  async register(value: RegisterDto) {
+    try {
+      const existing = await Promise.allSettled([
+        this.accountService.findOne(value.email),
+        this.accountService.findByPhoneNumber(value.phoneNumber),
+      ]);
+      if (
+        (existing[0].status === 'fulfilled' && existing[0].value) ||
+        (existing[1].status === 'fulfilled' && existing[1].value)
+      )
+        throw new ConflictException(`User already exist!`);
+
+      //send otp
+      this.otpService.getOtp(value.phoneNumber);
+      //on otp complete
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
 }
