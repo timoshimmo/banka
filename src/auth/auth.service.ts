@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { IUser } from 'src/domain/models/user.model';
+import { RegisterDto } from 'src/domain/dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,10 +23,12 @@ export class AuthService {
     return null;
   }
 
-  async login(user: IUser) {
+  async login(user: any) {
     const payload = { phoneNumber: user.phoneNumber, email: user.email };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  async register(value: RegisterDto) {}
 }
