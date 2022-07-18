@@ -1,7 +1,15 @@
-import { Controller, Request, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  Body,
+  ConflictException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { LoginDto } from 'src/domain/dto/login.dto';
-import { RegisterDto } from 'src/domain/dto/register.dto';
+import { LoginDto } from 'src/domain/dto/request/login.dto';
+import { OtpVerifyDto } from 'src/domain/dto/request/otp-verify.dto';
+import { RegisterDto } from 'src/domain/dto/request/register.dto';
 import { AuthService } from './auth.service';
 
 @ApiTags('Auth')
@@ -18,6 +26,22 @@ export class AuthController {
   @Post('/register')
   @ApiBody({ type: RegisterDto })
   async register(@Body() user: RegisterDto) {
-    return await this.authService.register(user);
+    const isExist = await this.authService.exist(user.phoneNumber, user.email);
+
+    if (isExist) throw new ConflictException('User already exist!');
+    const createdUser = await this.authService.register(user);
+    if (createdUser && createdUser.isVerified)
+      throw new ConflictException('User already exist!');
+    return createdUser;
+  }
+
+  @Post('/verify')
+  @ApiBody({ type: OtpVerifyDto })
+  async verify(@Body() otpVerify: OtpVerifyDto) {
+    const verifiedUser = await this.authService.verifyOtp(otpVerify);
+    if (!verifiedUser)
+      throw new ServiceUnavailableException('Unable to verify otp!');
+
+    return verifiedUser;
   }
 }

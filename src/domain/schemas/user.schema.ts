@@ -28,6 +28,9 @@ export class User {
 
   @Prop({ type: String, required: true })
   phoneNumber: string;
+
+  @Prop({ type: Boolean, default: false })
+  isVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

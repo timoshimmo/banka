@@ -1,11 +1,13 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { IUser } from 'src/domain/models/user.model';
-import { RegisterDto } from 'src/domain/dto/register.dto';
+import { RegisterDto } from 'src/domain/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
+import { UserDocument } from 'src/domain/schemas/user.schema';
+import { OtpVerifyDto } from 'src/domain/dto/request/otp-verify.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +25,6 @@ export class AuthService {
       const current: IUser = { ...user };
       return current;
     }
-
     return null;
   }
 
@@ -34,21 +35,45 @@ export class AuthService {
     };
   }
 
-  async register(value: RegisterDto) {
+  async register(data: RegisterDto): Promise<UserDocument> {
     try {
-      const existing = await Promise.allSettled([
-        this.accountService.findOne(value.email),
-        this.accountService.findByPhoneNumber(value.phoneNumber),
-      ]);
-      if (
-        (existing[0].status === 'fulfilled' && existing[0].value) ||
-        (existing[1].status === 'fulfilled' && existing[1].value)
-      )
-        throw new ConflictException(`User already exist!`);
+      const user = await this.accountService.create(data);
+      if (!user.isVerified)
+        await this.otpService.getOtp(user.phoneNumber, user.id);
+      return user;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
 
-      //send otp
-      this.otpService.getOtp(value.phoneNumber);
-      //on otp complete
+  async exist(phoneNumber: string, email: string): Promise<boolean> {
+    let isExist = false;
+    const response = await Promise.all([
+      this.accountService.findByPhoneNumber(phoneNumber),
+      this.accountService.findOne(email),
+    ]);
+
+    if (
+      (response[0] && response[0].isVerified) ||
+      (response[1] && response[1].isVerified)
+    )
+      isExist = true;
+    return isExist;
+  }
+
+  async verifyOtp(otpVerify: OtpVerifyDto): Promise<UserDocument | null> {
+    try {
+      const isVerified = await this.otpService.verifyOtp(
+        otpVerify.pin,
+        otpVerify.userId,
+      );
+
+      if (isVerified) {
+        const user = await this.accountService.verify(otpVerify.userId);
+
+        user.isVerified = true;
+        return user;
+      }
     } catch (error) {
       this.logger.error(error);
     }

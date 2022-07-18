@@ -8,6 +8,11 @@ import { OtpRequestDto } from './dto/otp.request.dto';
 import { ConfigService } from '@nestjs/config';
 import { TermiiChannel } from './enum/termiiChannel.enum';
 import { TermiiMessageType } from './enum/termiiMessageType.enum';
+import { Otp, OtpDocument } from 'src/domain/schemas/otp.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { OtpVerifyRequestDto } from './dto/otp-verify.request.dto';
+import { OtpVerifyResponseDto } from './dto/otp-verify.response.dto';
 
 @Injectable()
 export class OtpService {
@@ -16,10 +21,10 @@ export class OtpService {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+    @InjectModel(Otp.name) private otpModel: Model<OtpDocument>,
   ) {}
 
-  async getOtp(phoneNumber: string): Promise<string> {
-    let pinId = '';
+  async getOtp(phoneNumber: string, userId: string): Promise<void> {
     const requestData: OtpRequestDto = this.otpRequest(phoneNumber);
     try {
       this.logger.log('Fetching OTP');
@@ -28,8 +33,8 @@ export class OtpService {
 
       const responseData = response.data;
       if (responseData && responseData.status === 200) {
-        this.logger.log('OTP sent');
-        pinId = responseData.pinId;
+        this.logger.log('OTP sent!');
+        await this.create(userId, responseData.pinId);
       }
     } catch (error) {
       const err = error as AxiosError;
@@ -37,8 +42,46 @@ export class OtpService {
         this.logger.error(err.response.data);
       }
     }
+  }
 
-    return pinId;
+  async verifyOtp(pin: string, userId: string): Promise<boolean> {
+    let isVerified = false;
+    const sentOtp = await this.findOne(userId);
+    const requestData: OtpVerifyRequestDto = {
+      api_key: this.configService.get<string>('TERMII_API_KEY'),
+      pin,
+      pin_id: sentOtp.pinId,
+    };
+
+    try {
+      this.logger.log('Verifying OTP');
+      const response: AxiosResponse<OtpVerifyResponseDto> =
+        await this.httpService.axiosRef.post('/sms/otp/verify', requestData);
+
+      const data = response.data;
+      if (data && data.verified && data.pinId === sentOtp.pinId) {
+        isVerified = true;
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+      if (err.response) {
+        this.logger.error(err.response.data);
+      }
+    }
+    return isVerified;
+  }
+
+  private async findOne(userId: string): Promise<OtpDocument> {
+    return await this.otpModel.findOne({ userId });
+  }
+
+  private async create(userId: string, pinId: string) {
+    const otp = await this.otpModel.findOne({ userId });
+    if (otp) {
+      return await this.otpModel.findByIdAndUpdate(userId, { pinId });
+    }
+    const savedOtp = new this.otpModel({ userId, pinId });
+    return await savedOtp.save();
   }
 
   private otpRequest(phoneNumber: string): OtpRequestDto {
