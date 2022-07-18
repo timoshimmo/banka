@@ -22,6 +22,7 @@ export default class TransformInterceptor<T>
     return {
       data: value,
       statusCode: context.switchToHttp().getResponse().statusCode,
+      message: context.switchToHttp().getResponse(),
     };
   }
 }

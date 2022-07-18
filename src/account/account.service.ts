@@ -28,7 +28,6 @@ export class AccountService {
         return await createdUser.save();
       }
     }
-    return createdUser;
   }
 
   async verify(id: string): Promise<UserDocument | null> {

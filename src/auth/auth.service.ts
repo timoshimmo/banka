@@ -53,10 +53,7 @@ export class AuthService {
       this.accountService.findOne(email),
     ]);
 
-    if (
-      (response[0] && response[0].isVerified) ||
-      (response[1] && response[1].isVerified)
-    )
+    if ((response[0] && response[0]) || (response[1] && response[1]))
       isExist = true;
     return isExist;
   }

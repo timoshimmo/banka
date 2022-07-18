@@ -28,11 +28,8 @@ export class AuthController {
   @ApiBody({ type: RegisterDto })
   async register(@Body() user: RegisterDto): Promise<UserResponseDto> {
     const isExist = await this.authService.exist(user.phoneNumber, user.email);
-
     if (isExist) throw new ConflictException('User already exist!');
     const createdUser = await this.authService.register(user);
-    if (createdUser && createdUser.isVerified)
-      throw new ConflictException('User already exist!');
     return createdUser;
   }
 
