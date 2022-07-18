@@ -70,7 +70,6 @@ export class AuthService {
 
       if (isVerified) {
         const user = await this.accountService.verify(otpVerify.userId);
-
         user.isVerified = true;
         return user;
       }

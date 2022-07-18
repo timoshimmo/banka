@@ -80,6 +80,7 @@ export class OtpService {
     if (otp) {
       return await this.otpModel.findByIdAndUpdate(userId, { pinId });
     }
+
     const savedOtp = new this.otpModel({ userId, pinId });
     return await savedOtp.save();
   }
