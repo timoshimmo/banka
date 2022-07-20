@@ -23,8 +23,8 @@ export class User {
   @Prop({ type: String, required: true })
   password: string;
 
-  @Prop({ type: Number, length: 6 })
-  pin: number;
+  @Prop({ type: String })
+  pin: string;
 
   @Prop({ type: String, required: true })
   phoneNumber: string;

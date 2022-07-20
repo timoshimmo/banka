@@ -4,13 +4,12 @@ import { BaseResponse } from 'src/domain/dto/response/base-response';
 
 export const ApiResponse = <TModel extends Type<any>>(
   model: TModel,
-  description: string,
   status: number,
 ) => {
   return applyDecorators(
     ApiOkResponse({
       status: status,
-      description: description,
+      description: 'Success',
       schema: {
         type: 'object',
         allOf: [

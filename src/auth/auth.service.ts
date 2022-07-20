@@ -22,17 +22,23 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.accountService.findOne(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const current: ICurrentUser = {
-        email: user.email,
-        firstName: user.firstName,
-        isVerified: user.isVerified,
-        lastName: user.lastName,
-        phoneNumber: user.phoneNumber,
-        id: user.id,
-      };
-      return current;
+    if (user) {
+      const validatePassword = await bcrypt.compare(password, user.password);
+      const validatePin = await bcrypt.compare(password, user.pin.toString());
+
+      if (validatePassword || validatePin) {
+        const current: ICurrentUser = {
+          email: user.email,
+          firstName: user.firstName,
+          isVerified: user.isVerified,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          id: user.id,
+        };
+        return current;
+      }
     }
+
     return null;
   }
 
