@@ -46,16 +46,21 @@ export class AuthService {
     }
   }
 
-  async exist(phoneNumber: string, email: string): Promise<boolean> {
-    let isExist = false;
-    const response = await Promise.all([
-      this.accountService.findByPhoneNumber(phoneNumber),
-      this.accountService.findOne(email),
-    ]);
+  async exist(
+    phoneNumber: string,
+    email: string,
+  ): Promise<{ isExist: boolean; message: string }> {
+    let user = await this.accountService.findByPhoneNumber(phoneNumber);
+    if (user) {
+      return { isExist: true, message: 'Phone number already exist!' };
+    }
 
-    if ((response[0] && response[0]) || (response[1] && response[1]))
-      isExist = true;
-    return isExist;
+    user = await this.accountService.findOne(email);
+    if (user) {
+      return { isExist: true, message: 'Email already exist!' };
+    }
+
+    return { isExist: false, message: '' };
   }
 
   async verifyOtp(otpVerify: OtpVerifyDto): Promise<UserDocument | null> {
