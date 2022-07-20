@@ -5,5 +5,5 @@ export default class CreatePinDto {
   @IsNumber()
   @Min(6)
   @ApiProperty()
-  pin: number;
+  pin: string;
 }

@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 
 import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
 import { User, UserDocument } from 'src/domain/schemas/user.schema';
+import { ProfileDto } from 'src/domain/dto/request/account/profile.dto';
 
 @Injectable()
 export class AccountService {
@@ -38,8 +39,12 @@ export class AccountService {
     return await bcrypt.hash(password, 10);
   }
 
-  async createPin(email: string, pin: number) {
-    await this.userModel.findOneAndUpdate({ email }, { pin });
-    return null;
+  async createPin(email: string, pin: string): Promise<UserDocument | null> {
+    pin = await this.hashedPassword(pin);
+    return await this.userModel.findOneAndUpdate({ email }, { pin });
+  }
+
+  async update(id: string, profile: ProfileDto): Promise<UserDocument | null> {
+    return await this.userModel.findByIdAndUpdate(id, { ...profile });
   }
 }

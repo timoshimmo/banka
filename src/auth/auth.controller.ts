@@ -13,7 +13,6 @@ import {
   ApiExtraModels,
   ApiServiceUnavailableResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -38,8 +37,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   @ApiBody({ type: LoginDto })
-  @ApiResponse(TokenDto, 'Logged in successfully', 200)
-  @ApiUnauthorizedResponse()
+  @ApiResponse(TokenDto, 200)
   async login(@Req() req: Request): Promise<Entity<TokenDto>> {
     const token = await this.authService.login(req.user as ICurrentUser);
     return { message: 'Logged in successfully', data: token };
@@ -47,7 +45,7 @@ export class AuthController {
 
   @Post('/register')
   @ApiBody({ type: RegisterDto })
-  @ApiResponse(UserResponseDto, 'User created succesfully', 201)
+  @ApiResponse(UserResponseDto, 201)
   @ApiConflictResponse({ description: 'User already exists' })
   async register(@Body() user: RegisterDto): Promise<Entity<UserResponseDto>> {
     const isExist = await this.authService.exist(user.phoneNumber, user.email);
@@ -58,7 +56,7 @@ export class AuthController {
 
   @Post('/verify')
   @ApiBody({ type: OtpVerifyDto })
-  @ApiResponse(UserResponseDto, 'Otp verified succesfully', 200)
+  @ApiResponse(UserResponseDto, 200)
   @ApiServiceUnavailableResponse({ description: 'Unable to verify otp!' })
   async verify(@Body() otp: OtpVerifyDto): Promise<Entity<UserResponseDto>> {
     const verifiedUser = await this.authService.verifyOtp(otp);
