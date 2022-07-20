@@ -6,6 +6,7 @@ import { AccountModule } from 'src/account/account.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { OtpModule } from 'src/otp/otp.module';
+import LocatStrategy from './strategies/local.strategy';
 
 @Module({
   imports: [
@@ -16,12 +17,12 @@ import { OtpModule } from 'src/otp/otp.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('ACCESS_SECRET'),
-        signOptions: { expiresIn: '6000s' },
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES') },
       }),
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, LocatStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

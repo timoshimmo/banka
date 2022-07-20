@@ -3,11 +3,12 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
-import { IUser } from 'src/domain/models/user.model';
+import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { RegisterDto } from 'src/domain/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { UserDocument } from 'src/domain/schemas/user.schema';
 import { OtpVerifyDto } from 'src/domain/dto/request/otp-verify.dto';
+import TokenDto from 'src/domain/dto/response/token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,17 +22,26 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.accountService.findOne(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const current: IUser = { ...user };
-      return current;
+    if (user && user.isVerified) {
+      if (await bcrypt.compare(password, user.password)) {
+        const current: ICurrentUser = {
+          email: user.email,
+          firstName: user.firstName,
+          isVerified: user.isVerified,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          id: user.id,
+        };
+        return current;
+      }
     }
     return null;
   }
 
-  async login(user: any) {
-    const payload = { phoneNumber: user.phoneNumber, email: user.email };
+  async login(user: ICurrentUser): Promise<TokenDto> {
+    const payload = { username: user.phoneNumber, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 
