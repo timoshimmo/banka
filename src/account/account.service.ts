@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-import { RegisterDto } from 'src/domain/dto/request/register.dto';
+import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
 import { User, UserDocument } from 'src/domain/schemas/user.schema';
 
 @Injectable()
@@ -36,5 +36,10 @@ export class AccountService {
 
   private async hashedPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
+  }
+
+  async createPin(email: string, pin: number) {
+    await this.userModel.findOneAndUpdate({ email }, { pin });
+    return null;
   }
 }

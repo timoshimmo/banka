@@ -4,10 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
-import { RegisterDto } from 'src/domain/dto/request/register.dto';
+import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { UserDocument } from 'src/domain/schemas/user.schema';
-import { OtpVerifyDto } from 'src/domain/dto/request/otp-verify.dto';
+import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
 import TokenDto from 'src/domain/dto/response/token-response.dto';
 
 @Injectable()
@@ -22,24 +22,37 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.accountService.findOne(email);
-    if (user && user.isVerified) {
-      if (await bcrypt.compare(password, user.password)) {
-        const current: ICurrentUser = {
-          email: user.email,
-          firstName: user.firstName,
-          isVerified: user.isVerified,
-          lastName: user.lastName,
-          phoneNumber: user.phoneNumber,
-          id: user.id,
-        };
-        return current;
-      }
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const current: ICurrentUser = {
+        email: user.email,
+        firstName: user.firstName,
+        isVerified: user.isVerified,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        id: user.id,
+      };
+      return current;
     }
     return null;
   }
 
+  async currentUser(email: string): Promise<ICurrentUser> {
+    const user = await this.accountService.findOne(email);
+    if (user && user.isVerified) {
+      const current: ICurrentUser = {
+        email: user.email,
+        firstName: user.firstName,
+        isVerified: user.isVerified,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        id: user.id,
+      };
+      return current;
+    }
+  }
+
   async login(user: ICurrentUser): Promise<TokenDto> {
-    const payload = { username: user.phoneNumber, sub: user.id };
+    const payload = { username: user.email, sub: user.id };
     return {
       accessToken: this.jwtService.sign(payload),
     };

@@ -7,12 +7,14 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { OtpModule } from 'src/otp/otp.module';
 import LocatStrategy from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     AccountModule,
     OtpModule,
     PassportModule,
+    ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -22,7 +24,7 @@ import LocatStrategy from './strategies/local.strategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocatStrategy],
+  providers: [AuthService, LocatStrategy, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

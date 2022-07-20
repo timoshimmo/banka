@@ -17,9 +17,9 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { LoginDto } from 'src/domain/dto/request/login.dto';
-import { OtpVerifyDto } from 'src/domain/dto/request/otp-verify.dto';
-import { RegisterDto } from 'src/domain/dto/request/register.dto';
+import { LoginDto } from 'src/domain/dto/request/auth/login.dto';
+import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
+import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
 import { Entity } from 'src/domain/dto/response/entity';
 import TokenDto from 'src/domain/dto/response/token-response.dto';
