@@ -29,10 +29,10 @@ export class AccountController {
   async createPin(
     @Req() req: Request,
     @Body() body: CreatePinDto,
-  ): Promise<string> {
+  ): Promise<BaseResponse<string>> {
     const user = req.user as ICurrentUser;
     await this.accountService.createPin(user.email, body.pin);
-    return 'Pin created successfully!';
+    return { message: 'Pin created', data: 'Pin created successfully!' };
   }
 
   @Put('/profile')
