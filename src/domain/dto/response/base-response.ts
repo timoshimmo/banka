@@ -1,5 +1,4 @@
-export class BaseResponse<T> {
-  statusCode: number;
+export interface BaseResponse<T> {
   message: string;
   data: T;
 }

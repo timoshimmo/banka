@@ -5,26 +5,26 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
+import { Response } from 'src/domain/dto/response/response';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
-import { Entity } from 'src/domain/dto/response/entity';
 
 @Injectable()
 export default class TransformInterceptor<T>
-  implements NestInterceptor<Entity<T>, BaseResponse<T>>
+  implements NestInterceptor<BaseResponse<T>, Response<T>>
 {
   async intercept(
     context: ExecutionContext,
-    next: CallHandler<Entity<T>>,
-  ): Promise<Observable<BaseResponse<T>>> {
+    next: CallHandler<BaseResponse<T>>,
+  ): Promise<Observable<Response<T>>> {
     return next
       .handle()
-      .pipe(map((value: Entity<T>) => this.mapResponse(context, value)));
+      .pipe(map((value: BaseResponse<T>) => this.mapResponse(context, value)));
   }
 
   private mapResponse(
     context: ExecutionContext,
-    value: Entity<T>,
-  ): BaseResponse<T> {
+    value: BaseResponse<T>,
+  ): Response<T> {
     return {
       data: value.data,
       statusCode: context.switchToHttp().getResponse().statusCode,
