@@ -1,6 +1,6 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
-import { BaseResponse } from 'src/domain/dto/response/base-response';
+import { Response } from 'src/domain/dto/response/response';
 
 export const ApiResponse = <TModel extends Type<any>>(
   model: TModel,
@@ -13,7 +13,7 @@ export const ApiResponse = <TModel extends Type<any>>(
       schema: {
         type: 'object',
         allOf: [
-          { $ref: getSchemaPath(BaseResponse) },
+          { $ref: getSchemaPath(Response) },
           {
             properties: {
               message: {
