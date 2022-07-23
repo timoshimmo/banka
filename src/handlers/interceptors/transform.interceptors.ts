@@ -25,6 +25,7 @@ export default class TransformInterceptor<T>
     context: ExecutionContext,
     value: BaseResponse<T>,
   ): Response<T> {
+    console.log(context.switchToHttp().getResponse());
     return {
       data: value.data,
       statusCode: context.switchToHttp().getResponse().statusCode,

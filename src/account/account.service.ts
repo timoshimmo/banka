@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as jsonpatch from 'fast-json-patch';
 
 import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
 import { User, UserDocument } from 'src/domain/schemas/user.schema';
-import { ProfileDto } from 'src/domain/dto/request/account/profile.dto';
+import { IProfile } from 'src/domain/models/profile.model';
 
 @Injectable()
 export class AccountService {
@@ -44,7 +45,10 @@ export class AccountService {
     return await this.userModel.findOneAndUpdate({ email }, { pin });
   }
 
-  async update(id: string, profile: ProfileDto): Promise<UserDocument | null> {
-    return await this.userModel.findByIdAndUpdate(id, { ...profile });
+  async update(id: string, data: any): Promise<UserDocument | null> {
+    const profile: IProfile = {};
+    const result = jsonpatch.applyPatch(profile, data).newDocument;
+
+    return await this.userModel.findByIdAndUpdate(id, { ...result });
   }
 }
