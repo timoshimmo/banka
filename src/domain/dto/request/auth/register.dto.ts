@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPhoneNumber, IsString, Matches } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -42,7 +48,8 @@ export class RegisterDto {
   @ApiProperty()
   nickName: string;
 
-  @IsString()
-  @ApiProperty()
+  @IsNumber()
+  @ApiProperty({ required: false })
+  @IsOptional()
   referralCode?: string;
 }
