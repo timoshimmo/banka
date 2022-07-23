@@ -24,9 +24,11 @@ export class AuthService {
     const user = await this.accountService.findOne(email);
     if (user) {
       const validatePassword = await bcrypt.compare(password, user.password);
-      const validatePin = await bcrypt.compare(password, user.pin.toString());
+      // const validatePin = user.pin
+      //   ? await bcrypt.compare(password, user.pin?.toString())
+      //   : '';
 
-      if (validatePassword || validatePin) {
+      if (validatePassword) {
         const current: ICurrentUser = {
           email: user.email,
           firstName: user.firstName,

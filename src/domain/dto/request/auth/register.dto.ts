@@ -6,22 +6,22 @@ export class RegisterDto {
   @ApiProperty()
   email: string;
 
-  @IsPhoneNumber()
+  @IsPhoneNumber('NG')
   @ApiProperty()
   phoneNumber: string;
 
   @IsString()
   @Matches(/^(?=.*[a-z])/, {
-    message: 'Must contain at least one lowercase character',
+    message: 'Password must contain at least one lowercase character',
   })
   @Matches(/^(?=.*[A-Z])/, {
-    message: 'Must contain at least one uppecase character',
+    message: 'Password must contain at least one uppecase character',
   })
   @Matches(/^(?=.*[0-9])/, {
-    message: 'Must contain at least one number',
+    message: 'Password must contain at least one number',
   })
   @Matches(/^(?=.*[!@#%&])/, {
-    message: 'Must contain at least one special character',
+    message: 'Password must contain at least one special character',
   })
   @ApiProperty()
   password: string;
@@ -41,4 +41,8 @@ export class RegisterDto {
   @IsString()
   @ApiProperty()
   nickName: string;
+
+  @IsString()
+  @ApiProperty()
+  referralCode?: string;
 }

@@ -10,7 +10,6 @@ import {
 import {
   ApiBody,
   ApiConflictResponse,
-  ApiExtraModels,
   ApiServiceUnavailableResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -19,7 +18,6 @@ import { Request } from 'express';
 import { LoginDto } from 'src/domain/dto/request/auth/login.dto';
 import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
 import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
-import { Response } from 'src/domain/dto/response/response';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
 import TokenDto from 'src/domain/dto/response/token-response.dto';
 import UserResponseDto from 'src/domain/dto/response/user.response.dto';
@@ -30,7 +28,6 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
-@ApiExtraModels(Response, UserResponseDto, TokenDto)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -53,10 +50,20 @@ export class AuthController {
     const isExist = await this.authService.exist(user.phoneNumber, user.email);
     if (isExist.isExist) throw new ConflictException(isExist.message);
     const createdUser = await this.authService.register(user);
-    return { message: 'User created succesfully', data: createdUser };
+    const result: UserResponseDto = {
+      id: createdUser.id,
+      email: createdUser.email,
+      firstName: createdUser.firstName,
+      isVerified: createdUser.isVerified,
+      lastName: createdUser.lastName,
+      middleName: createdUser.middleName,
+      nickName: createdUser.nickName,
+      phoneNumber: createdUser.phoneNumber,
+    };
+    return { message: 'User created succesfully', data: result };
   }
 
-  @Post('/verify')
+  @Post('/otp/verify')
   @ApiBody({ type: OtpVerifyDto })
   @ApiResponse(UserResponseDto, 200)
   @ApiServiceUnavailableResponse({ description: 'Unable to verify otp!' })
@@ -66,6 +73,17 @@ export class AuthController {
     const verifiedUser = await this.authService.verifyOtp(otp);
     if (!verifiedUser)
       throw new ServiceUnavailableException('Unable to verify otp!');
-    return { message: 'Otp verified', data: verifiedUser };
+
+    const result: UserResponseDto = {
+      id: verifiedUser.id,
+      email: verifiedUser.email,
+      firstName: verifiedUser.firstName,
+      isVerified: verifiedUser.isVerified,
+      lastName: verifiedUser.lastName,
+      middleName: verifiedUser.middleName,
+      nickName: verifiedUser.nickName,
+      phoneNumber: verifiedUser.phoneNumber,
+    };
+    return { message: 'Otp verified', data: result };
   }
 }

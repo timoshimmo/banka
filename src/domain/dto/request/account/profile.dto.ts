@@ -1,16 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class ProfileDto {
   @IsString()
-  @ApiProperty()
-  firstName: string;
+  @IsNotEmpty()
+  @ApiProperty({ default: 'replace' })
+  op: string;
 
   @IsString()
-  @ApiProperty()
-  lastName: string;
+  @IsNotEmpty()
+  @ApiProperty({ default: '' })
+  value: string;
 
   @IsString()
-  @ApiProperty()
-  middleName?: string;
+  @IsNotEmpty()
+  @ApiProperty({ default: '/firstName' })
+  path: string;
 }

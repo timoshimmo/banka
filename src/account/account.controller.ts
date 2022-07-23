@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -35,13 +35,14 @@ export class AccountController {
     return { message: 'Pin created', data: 'Pin created successfully!' };
   }
 
-  @Put('/profile')
-  @ApiBody({ type: ProfileDto })
+  @UseGuards(JwtAuthGuard)
+  @Patch('/profile')
+  @ApiBody({ type: [ProfileDto] })
   @ApiResponse(UserResponseDto, 200)
   @ApiConflictResponse({ description: 'Conflict' })
   async profile(
     @Req() req: Request,
-    @Body() profile: ProfileDto,
+    @Body() profile: ProfileDto[],
   ): Promise<BaseResponse<UserResponseDto>> {
     const user = req.user as ICurrentUser;
     const editedUser = await this.accountService.update(user.id, profile);
