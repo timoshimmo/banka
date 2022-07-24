@@ -21,6 +21,7 @@ export class AccountService {
   }
 
   async create(data: RegisterDto): Promise<UserDocument | null> {
+    data.email = data.email.toLowerCase().trim();
     let createdUser = await this.findOne(data.email);
     if (!createdUser) {
       createdUser = await this.findOne(data.phoneNumber);
