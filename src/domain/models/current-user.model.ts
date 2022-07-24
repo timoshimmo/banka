@@ -4,5 +4,6 @@ export interface ICurrentUser {
   email: string;
   phoneNumber: string;
   isVerified: boolean;
+  pin: string;
   id?: string;
 }

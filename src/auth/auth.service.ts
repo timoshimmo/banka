@@ -31,6 +31,7 @@ export class AuthService {
           isVerified: user.isVerified,
           lastName: user.lastName,
           phoneNumber: user.phoneNumber,
+          pin: user.pin,
           id: user.id,
         };
         return current;
@@ -49,6 +50,7 @@ export class AuthService {
         isVerified: user.isVerified,
         lastName: user.lastName,
         phoneNumber: user.phoneNumber,
+        pin: user.pin,
         id: user.id,
       };
       return current;
@@ -59,6 +61,7 @@ export class AuthService {
     const payload = { username: user.email, sub: user.id };
     return {
       accessToken: this.jwtService.sign(payload),
+      user: user,
     };
   }
 
