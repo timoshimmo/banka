@@ -5,7 +5,7 @@ export default class CreatePinDto {
   @IsNumber()
   @Min(6)
   @ApiProperty()
-  pin: string;
+  pin: number;
 
   @ApiProperty()
   userId: string;
