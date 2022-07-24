@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as jsonpatch from 'fast-json-patch';
 
@@ -41,9 +41,13 @@ export class AccountService {
     return await bcrypt.hash(password, 10);
   }
 
-  async createPin(id: string, data: number): Promise<UserDocument | null> {
+  async createPin(
+    id: Types.ObjectId,
+    data: number,
+  ): Promise<UserDocument | null> {
     const pin = await this.hashedPassword(data.toString());
-    return await this.userModel.findOneAndUpdate({ id }, { pin });
+    const user = await this.userModel.findByIdAndUpdate({ id }, { pin });
+    return user;
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {
