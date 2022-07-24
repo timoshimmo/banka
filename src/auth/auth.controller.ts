@@ -14,6 +14,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
+import { AccountService } from 'src/account/account.service';
+import CreatePinDto from 'src/domain/dto/request/account/create-pin.dto';
 
 import { LoginDto } from 'src/domain/dto/request/auth/login.dto';
 import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
@@ -29,7 +31,10 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private accountService: AccountService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('/login')
@@ -85,5 +90,13 @@ export class AuthController {
       phoneNumber: verifiedUser.phoneNumber,
     };
     return { message: 'Otp verified', data: result };
+  }
+
+  @Post('/pin')
+  @ApiBody({ type: CreatePinDto })
+  @ApiResponse(String, 200)
+  async createPin(@Body() body: CreatePinDto): Promise<BaseResponse<string>> {
+    await this.accountService.createPin(body.userId, body.pin);
+    return { message: 'Pin created', data: 'Pin created successfully!' };
   }
 }
