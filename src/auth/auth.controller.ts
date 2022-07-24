@@ -15,6 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Types } from 'mongoose';
 import { AccountService } from 'src/account/account.service';
 import CreatePinDto from 'src/domain/dto/request/account/create-pin.dto';
 
@@ -97,7 +98,8 @@ export class AuthController {
   @ApiBody({ type: CreatePinDto })
   @ApiResponse(String, 200)
   async createPin(@Body() body: CreatePinDto): Promise<BaseResponse<string>> {
-    const user = await this.accountService.createPin(body.userId, body.pin);
+    const id = new Types.ObjectId(body.userId);
+    const user = await this.accountService.createPin(id, body.pin);
     if (!user) throw new NotFoundException('User not found!');
     return { message: 'Pin created', data: 'Pin created successfully!' };
   }
