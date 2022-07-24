@@ -40,9 +40,9 @@ export class AccountService {
     return await bcrypt.hash(password, 10);
   }
 
-  async createPin(email: string, pin: string): Promise<UserDocument | null> {
+  async createPin(id: string, pin: string): Promise<UserDocument | null> {
     pin = await this.hashedPassword(pin);
-    return await this.userModel.findOneAndUpdate({ email }, { pin });
+    return await this.userModel.findOneAndUpdate({ id }, { pin });
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {

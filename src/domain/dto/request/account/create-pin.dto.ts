@@ -6,4 +6,7 @@ export default class CreatePinDto {
   @Min(6)
   @ApiProperty()
   pin: string;
+
+  @ApiProperty()
+  userId: string;
 }
