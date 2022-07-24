@@ -6,6 +6,7 @@ import {
   ServiceUnavailableException,
   Req,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -96,7 +97,8 @@ export class AuthController {
   @ApiBody({ type: CreatePinDto })
   @ApiResponse(String, 200)
   async createPin(@Body() body: CreatePinDto): Promise<BaseResponse<string>> {
-    await this.accountService.createPin(body.userId, body.pin);
+    const user = await this.accountService.createPin(body.userId, body.pin);
+    if (!user) throw new NotFoundException('User not found!');
     return { message: 'Pin created', data: 'Pin created successfully!' };
   }
 }
