@@ -17,11 +17,11 @@ import {
 import { Request } from 'express';
 import { Types } from 'mongoose';
 import { AccountService } from 'src/account/account.service';
-import CreatePinDto from 'src/domain/dto/request/account/create-pin.dto';
+import CreatePinDto from 'src/account/dto/request/create-pin.dto';
 
-import { LoginDto } from 'src/domain/dto/request/auth/login.dto';
-import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
-import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
+import { LoginDto } from 'src/auth/dto/request/login.dto';
+import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
+import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
 import TokenDto from 'src/domain/dto/response/token-response.dto';
 import UserResponseDto from 'src/domain/dto/response/user.response.dto';

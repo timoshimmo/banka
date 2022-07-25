@@ -8,7 +8,7 @@ import {
 import { Request } from 'express';
 
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ProfileDto } from 'src/domain/dto/request/account/profile.dto';
+import { ProfileDto } from 'src/account/dto/request/profile.dto';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
 import UserResponseDto from 'src/domain/dto/response/user.response.dto';
 import { ICurrentUser } from 'src/domain/models/current-user.model';

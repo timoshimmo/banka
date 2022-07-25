@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as jsonpatch from 'fast-json-patch';
 
-import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
+import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { User, UserDocument } from 'src/domain/schemas/user.schema';
 import { IProfile } from 'src/domain/models/profile.model';
 
