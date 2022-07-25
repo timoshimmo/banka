@@ -7,10 +7,16 @@ import * as jsonpatch from 'fast-json-patch';
 import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { User, UserDocument } from 'src/domain/schemas/user.schema';
 import { IProfile } from 'src/domain/models/profile.model';
+import { Address, AddressDocument } from 'src/domain/schemas/address.schema';
+import { AddressDto } from './dto/request/address.dto';
 
 @Injectable()
 export class AccountService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Address.name)
+    private readonly addressModel: Model<AddressDocument>,
+  ) {}
 
   async findOne(email: string): Promise<UserDocument | null> {
     return await this.userModel.findOne({ email });
@@ -53,7 +59,42 @@ export class AccountService {
   async update(id: string, data: any): Promise<UserDocument | null> {
     const profile: IProfile = {};
     const result = jsonpatch.applyPatch(profile, data).newDocument;
+    return await this.userModel.findByIdAndUpdate(
+      id,
+      { ...result },
+      { new: true },
+    );
+  }
 
-    return await this.userModel.findByIdAndUpdate(id, { ...result });
+  async createAddress(id: string, data: AddressDto): Promise<AddressDto> {
+    const address = new this.addressModel({ ...data, user: id });
+    const savedAddress = await address.save();
+    return this.mapAddress(savedAddress);
+  }
+
+  async findAddress(id: string): Promise<AddressDto> {
+    const address = await this.addressModel.findOne({ use: id });
+    return this.mapAddress(address);
+  }
+
+  async updateAddress(id: string, data: any) {
+    const address: AddressDto = {};
+    const result = jsonpatch.applyPatch(address, data).newDocument;
+    const updateAddress = await this.addressModel.findByIdAndUpdate(
+      id,
+      { ...result },
+      { new: true },
+    );
+    return this.mapAddress(updateAddress);
+  }
+
+  private mapAddress(data: AddressDocument): AddressDto {
+    const address: AddressDto = {
+      city: data.city,
+      country: data.country,
+      state: data.state,
+      street: data.street,
+    };
+    return address;
   }
 }

@@ -1,19 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class ProfileDto {
+export class PatchDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ default: 'replace' })
+  @ApiProperty({ example: 'replace' })
   op: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ default: '' })
+  @ApiProperty()
   value: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ default: '/firstName' })
+  @ApiProperty()
   path: string;
 }

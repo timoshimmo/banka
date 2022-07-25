@@ -1,8 +1,8 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { Response } from 'src/domain/dto/response/response';
-import TokenDto from 'src/domain/dto/response/token-response.dto';
-import UserResponseDto from 'src/domain/dto/response/user.response.dto';
+import TokenDto from 'src/auth/dto/response/token-response.dto';
+import UserResponseDto from 'src/auth/dto/response/user.response.dto';
 
 export const ApiResponse = <TModel extends Type<any>>(
   model: TModel,

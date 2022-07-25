@@ -8,7 +8,7 @@ import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { UserDocument } from 'src/domain/schemas/user.schema';
 import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
-import TokenDto from 'src/domain/dto/response/token-response.dto';
+import TokenDto from 'src/auth/dto/response/token-response.dto';
 
 @Injectable()
 export class AuthService {

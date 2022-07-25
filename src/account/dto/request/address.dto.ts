@@ -5,20 +5,20 @@ export class AddressDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'Nigeria' })
-  country: string;
+  country?: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'Mushin' })
-  city: string;
+  city?: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'Sijuade' })
-  street: string;
+  street?: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'Lagos' })
-  state: string;
+  state?: string;
 }
