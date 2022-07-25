@@ -12,9 +12,9 @@ export class EmailService {
     try {
       await this.mailerService.sendMail({
         to: user.email,
-        from: 'noreply@nestjs.com',
+        from: 'noreply@banka.com',
         subject: 'Welcome to banka',
-        template: 'welcome',
+        template: './welcome',
         context: {
           name: user.firstName + ' ' + user.lastName,
         },

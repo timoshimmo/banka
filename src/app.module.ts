@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -33,14 +33,25 @@ import { EmailModule } from './email/email.module';
           port: configService.get<string>('MAIL_HOST'),
           auth: {
             user: configService.get<string>('MAIL_USERNAME'),
-            password: configService.get<string>('MAIL_PASSWORD'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
           },
+        },
+        defaults: {
+          from: '"nest-modules" <modules@nestjs.com>',
         },
         template: {
           dir: __dirname + '/templates',
-          adapter: new EjsAdapter(),
+          adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
+          },
+        },
+        options: {
+          partials: {
+            dir: __dirname + 'templates/partials',
+            options: {
+              strict: true,
+            },
           },
         },
       }),
