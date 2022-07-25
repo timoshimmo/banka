@@ -30,6 +30,7 @@ import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
+import { UserDocument } from 'src/domain/schemas/user.schema';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -62,16 +63,7 @@ export class AuthController {
     const isExist = await this.authService.exist(user.phoneNumber, user.email);
     if (isExist.isExist) throw new ConflictException(isExist.message);
     const createdUser = await this.authService.register(user);
-    const result: UserResponseDto = {
-      id: createdUser.id,
-      email: createdUser.email,
-      firstName: createdUser.firstName,
-      isVerified: createdUser.isVerified,
-      lastName: createdUser.lastName,
-      middleName: createdUser.middleName,
-      nickName: createdUser.nickName,
-      phoneNumber: createdUser.phoneNumber,
-    };
+    const result = this.userResponse(createdUser);
 
     return {
       message: 'User created succesfully',
@@ -90,18 +82,22 @@ export class AuthController {
     const verifiedUser = await this.authService.verifyOtp(otp);
     if (!verifiedUser)
       throw new ServiceUnavailableException('Unable to verify otp!');
-
-    const result: UserResponseDto = {
-      id: verifiedUser.id,
-      email: verifiedUser.email,
-      firstName: verifiedUser.firstName,
-      isVerified: verifiedUser.isVerified,
-      lastName: verifiedUser.lastName,
-      middleName: verifiedUser.middleName,
-      nickName: verifiedUser.nickName,
-      phoneNumber: verifiedUser.phoneNumber,
-    };
+    const result = this.userResponse(verifiedUser);
     return { message: 'Otp verified', data: result, status: HttpStatus.OK };
+  }
+
+  private userResponse(user: UserDocument) {
+    const result: UserResponseDto = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      isVerified: user.isVerified,
+      lastName: user.lastName,
+      middleName: user.middleName,
+      nickName: user.nickName,
+      phoneNumber: user.phoneNumber,
+    };
+    return result;
   }
 
   @Post('/pin')
