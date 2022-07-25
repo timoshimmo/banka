@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   HttpStatus,
+  NotFoundException,
   Patch,
   Post,
   Req,
@@ -87,6 +88,7 @@ export class AccountController {
   ): Promise<BaseResponse<AddressDto>> {
     const user = req.user as ICurrentUser;
     const address = await this.accountService.updateAddress(user.id, data);
+    if (!address) throw new NotFoundException('Address not found');
     return {
       message: 'Address Updated successfully',
       data: address,

@@ -57,13 +57,22 @@ export class AccountService {
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {
-    const profile: IProfile = {};
-    const result = jsonpatch.applyPatch(profile, data).newDocument;
-    return await this.userModel.findByIdAndUpdate(
-      id,
-      { ...result },
-      { new: true },
-    );
+    const user = await this.userModel.findById(id);
+    if (user) {
+      const profile: IProfile = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        nickName: user.nickName,
+      };
+
+      const result = jsonpatch.applyPatch(profile, data).newDocument;
+      return await this.userModel.findByIdAndUpdate(
+        id,
+        { ...result },
+        { new: true },
+      );
+    }
   }
 
   async createAddress(id: string, data: AddressDto): Promise<AddressDto> {
@@ -78,23 +87,33 @@ export class AccountService {
   }
 
   async updateAddress(id: string, data: any) {
-    const address: AddressDto = {};
-    const result = jsonpatch.applyPatch(address, data).newDocument;
-    const updateAddress = await this.addressModel.findByIdAndUpdate(
-      id,
-      { ...result },
-      { new: true },
-    );
-    return this.mapAddress(updateAddress);
+    const address = await this.addressModel.findOne({ user: id });
+    if (address) {
+      const preparedAddress: AddressDto = {
+        city: address.city,
+        country: address.country,
+        state: address.state,
+        street: address.street,
+      };
+
+      const result = jsonpatch.applyPatch(preparedAddress, data).newDocument;
+      const updateAddress = await this.addressModel.findOneAndUpdate(
+        { user: id },
+        { ...result },
+        { new: true },
+      );
+      return this.mapAddress(updateAddress);
+    }
   }
 
   private mapAddress(data: AddressDocument): AddressDto {
-    const address: AddressDto = {
-      city: data.city,
-      country: data.country,
-      state: data.state,
-      street: data.street,
-    };
-    return address;
+    return data
+      ? {
+          city: data.city,
+          country: data.country,
+          state: data.state,
+          street: data.street,
+        }
+      : null;
   }
 }
