@@ -4,11 +4,11 @@ import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
-import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
+import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { UserDocument } from 'src/domain/schemas/user.schema';
-import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
-import TokenDto from 'src/domain/dto/response/token-response.dto';
+import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
+import TokenDto from 'src/auth/dto/response/token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,16 +25,7 @@ export class AuthService {
     if (user) {
       const validatePassword = await bcrypt.compare(password, user.password);
       if (validatePassword) {
-        const current: ICurrentUser = {
-          email: user.email,
-          firstName: user.firstName,
-          isVerified: user.isVerified,
-          lastName: user.lastName,
-          phoneNumber: user.phoneNumber,
-          pin: user.pin,
-          id: user.id,
-        };
-        return current;
+        return this.mapUser(user);
       }
     }
 
@@ -44,16 +35,7 @@ export class AuthService {
   async currentUser(email: string): Promise<ICurrentUser> {
     const user = await this.accountService.findOne(email);
     if (user && user.isVerified) {
-      const current: ICurrentUser = {
-        email: user.email,
-        firstName: user.firstName,
-        isVerified: user.isVerified,
-        lastName: user.lastName,
-        phoneNumber: user.phoneNumber,
-        pin: user.pin,
-        id: user.id,
-      };
-      return current;
+      return this.mapUser(user);
     }
   }
 
@@ -108,5 +90,20 @@ export class AuthService {
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  private mapUser(user: UserDocument): ICurrentUser {
+    const current: ICurrentUser = {
+      email: user.email,
+      firstName: user.firstName,
+      isVerified: user.isVerified,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      pin: user.pin,
+      middleName: user.middleName,
+      id: user.id,
+    };
+
+    return current;
   }
 }

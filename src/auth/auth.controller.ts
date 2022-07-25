@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
   NotFoundException,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -17,14 +18,14 @@ import {
 import { Request } from 'express';
 import { Types } from 'mongoose';
 import { AccountService } from 'src/account/account.service';
-import CreatePinDto from 'src/domain/dto/request/account/create-pin.dto';
+import CreatePinDto from 'src/account/dto/request/create-pin.dto';
 
-import { LoginDto } from 'src/domain/dto/request/auth/login.dto';
-import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
-import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
+import { LoginDto } from 'src/auth/dto/request/login.dto';
+import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
+import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
-import TokenDto from 'src/domain/dto/response/token-response.dto';
-import UserResponseDto from 'src/domain/dto/response/user.response.dto';
+import TokenDto from 'src/auth/dto/response/token-response.dto';
+import UserResponseDto from 'src/auth/dto/response/user.response.dto';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AuthService } from './auth.service';
@@ -44,7 +45,11 @@ export class AuthController {
   @ApiResponse(TokenDto, 200)
   async login(@Req() req: Request): Promise<BaseResponse<TokenDto>> {
     const token = await this.authService.login(req.user as ICurrentUser);
-    return { message: 'Logged in successfully', data: token };
+    return {
+      message: 'Logged in successfully',
+      data: token,
+      status: HttpStatus.OK,
+    };
   }
 
   @Post('/register')
@@ -67,7 +72,12 @@ export class AuthController {
       nickName: createdUser.nickName,
       phoneNumber: createdUser.phoneNumber,
     };
-    return { message: 'User created succesfully', data: result };
+
+    return {
+      message: 'User created succesfully',
+      data: result,
+      status: HttpStatus.CREATED,
+    };
   }
 
   @Post('/otp/verify')
@@ -91,7 +101,7 @@ export class AuthController {
       nickName: verifiedUser.nickName,
       phoneNumber: verifiedUser.phoneNumber,
     };
-    return { message: 'Otp verified', data: result };
+    return { message: 'Otp verified', data: result, status: HttpStatus.OK };
   }
 
   @Post('/pin')
@@ -101,6 +111,10 @@ export class AuthController {
     const id = new Types.ObjectId(body.userId);
     const user = await this.accountService.createPin(id, body.pin);
     if (!user) throw new NotFoundException('User not found!');
-    return { message: 'Pin created', data: 'Pin created successfully!' };
+    return {
+      message: 'Pin created',
+      data: 'Pin created successfully!',
+      status: HttpStatus.CREATED,
+    };
   }
 }
