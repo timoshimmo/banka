@@ -5,9 +5,11 @@ import { User, UserSchema } from 'src/domain/schemas/user.schema';
 import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
 import { Address, AddressSchema } from 'src/domain/schemas/address.schema';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
+    EmailModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Address.name, schema: AddressSchema },

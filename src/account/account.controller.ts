@@ -22,13 +22,17 @@ import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AccountService } from './account.service';
 import { AddressDto } from './dto/request/address.dto';
 import { NotFoundError } from 'rxjs';
+import { EmailService } from 'src/email/email.service';
 
 @ApiTags('Account')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly emailService: EmailService,
+  ) {}
 
   @Patch('/profile')
   @ApiBody({ type: [PatchDto] })
@@ -92,6 +96,17 @@ export class AccountController {
     return {
       message: 'Address Updated successfully',
       data: address,
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Get('/test')
+  async test(@Req() req: Request) {
+    const user = req.user as ICurrentUser;
+    await this.emailService.sendWelcome(user);
+    return {
+      message: 'Address Updated successfully',
+      data: 'Done',
       status: HttpStatus.OK,
     };
   }

@@ -41,14 +41,18 @@ import { EmailModule } from './email/email.module';
         },
         template: {
           dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(),
+          adapter: new HandlebarsAdapter(undefined, {
+            inlineCssOptions: {
+              url: `file://` + __dirname + '/templates',
+            },
+          }),
           options: {
             strict: true,
           },
         },
         options: {
           partials: {
-            dir: __dirname + 'templates/partials',
+            dir: __dirname + '/templates/partials',
             options: {
               strict: true,
             },
