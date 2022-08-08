@@ -6,5 +6,6 @@ export interface ICurrentUser {
   isVerified: boolean;
   middleName: string;
   pin: string;
+  transactionPin: string;
   id?: string;
 }

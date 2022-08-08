@@ -14,7 +14,7 @@ import {
 import { AddressDto } from './dto/request/address.dto';
 import { PersonDto } from 'src/auth/dto/request/person.dto';
 import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
-import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
+import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 
 @Injectable()
 export class AccountService {
@@ -64,7 +64,32 @@ export class AccountService {
     return user;
   }
 
-  async validatePin(
+  async createTransactionPin(
+    id: Types.ObjectId,
+    data: number,
+  ): Promise<UserDocument | null> {
+    const transactionPin = await this.hashedPassword(data.toString());
+    const user = await this.userModel.findByIdAndUpdate(
+      { id },
+      { transactionPin },
+    );
+    return user;
+  }
+
+  async validateTransactionPin(
+    id: Types.ObjectId,
+    pin: number,
+  ): Promise<UserDocument | null> {
+    let user = await this.userModel.findById(id);
+    if (user) {
+      const isValid = bcrypt.compare(pin.toString(), user.transactionPin);
+      if (!isValid) user = null;
+    }
+
+    return user;
+  }
+
+  async validatepin(
     id: Types.ObjectId,
     pin: number,
   ): Promise<UserDocument | null> {
@@ -77,19 +102,28 @@ export class AccountService {
     return user;
   }
 
+  async updateTransactionPin(
+    user: UserDocument,
+    data: UpdateTransactionPinDto,
+  ): Promise<UserDocument | null> {
+    const hashsedPin = await this.hashedPassword(data.newPin.toString());
+    return await this.userModel.findByIdAndUpdate(
+      user.id,
+      { transactionPin: hashsedPin },
+      { new: true },
+    );
+  }
+
   async updatePin(
     user: UserDocument,
-    data: UpdatePinDto,
+    data: UpdateTransactionPinDto,
   ): Promise<UserDocument | null> {
-    const isValid = bcrypt.compare(data.pin.toString(), user.pin);
-    if (isValid) {
-      const hashsedPin = await this.hashedPassword(data.newPin.toString());
-      return await this.userModel.findByIdAndUpdate(
-        user.id,
-        { pin: hashsedPin },
-        { new: true },
-      );
-    }
+    const hashsedPin = await this.hashedPassword(data.newPin.toString());
+    return await this.userModel.findByIdAndUpdate(
+      user.id,
+      { pin: hashsedPin },
+      { new: true },
+    );
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {
