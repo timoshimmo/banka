@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./templates/style.css"/>
-    <link rel="stylesheet" href="./templates/styles/bootstrap.min.css"/>
   </head>
   <body style="background-color: #f5f5f5">
     <main
@@ -13,22 +15,14 @@
       class="m-5 d-flex justify-items-center"
     >
       <div class="d-flex flex-column align-items-center">
-        <div>
-          <img src="cid:logo" width="40px" height="35px"  />
-          <p
-            style="
-              color: #003399;
-              font-style: normal;
-              font-family: 'Outfit', sans-serif;
-            "
-          >
-            Banka.
-          </p>
+        <div class="heading">
+          <img src="http://localhost:3000/images/bankaLogo.svg" width="40px" height="35px"  />
+          <p>banka.</p>
         </div>
         <h2 class="h2"
           style="
             color: #64748b;
-            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
           "
         >
           You are welcome
@@ -37,8 +31,6 @@
           class="mt-4"
           style="
             color: #475569;
-            font-family: 'Outfit', sans-serif;
-            font-style: normal;
           "
         >
           Hi {{name}}

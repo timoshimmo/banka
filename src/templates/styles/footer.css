@@ -1,0 +1,10 @@
+.footer > div {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.row {
+    display: grid;
+    width: 100%;
+}

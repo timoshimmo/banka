@@ -30,7 +30,7 @@ import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
-import { UserDocument } from 'src/domain/schemas/user.schema';
+import { UserDocument } from 'src/domain/schemas/user/user.schema';
 
 @ApiTags('Auth')
 @Controller('auth')

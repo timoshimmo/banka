@@ -6,7 +6,7 @@ import { AccountService } from 'src/account/account.service';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
-import { UserDocument } from 'src/domain/schemas/user.schema';
+import { UserDocument } from 'src/domain/schemas/user/user.schema';
 import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
 import TokenDto from 'src/auth/dto/response/token-response.dto';
 import { EmailService } from 'src/email/email.service';

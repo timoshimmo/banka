@@ -5,9 +5,12 @@ import * as bcrypt from 'bcrypt';
 import * as jsonpatch from 'fast-json-patch';
 
 import { RegisterDto } from 'src/auth/dto/request/register.dto';
-import { User, UserDocument } from 'src/domain/schemas/user.schema';
+import { User, UserDocument } from 'src/domain/schemas/user/user.schema';
 import { IProfile } from 'src/domain/models/profile.model';
-import { Address, AddressDocument } from 'src/domain/schemas/address.schema';
+import {
+  Address,
+  AddressDocument,
+} from 'src/domain/schemas/user/address.schema';
 import { AddressDto } from './dto/request/address.dto';
 
 @Injectable()
