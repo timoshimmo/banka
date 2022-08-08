@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { User } from './user.schema';
 
-export type UserDocument = User & Document;
+export type KinDocument = Kin & Document;
 
 @Schema()
-export class User {
+export default class Kin {
   @Prop({ type: String, required: true })
   firstName: string;
 
@@ -14,23 +15,20 @@ export class User {
   @Prop(String)
   middleName: string;
 
-  @Prop(String)
-  nickName: string;
-
   @Prop({ type: String, required: true })
   email: string;
 
   @Prop({ type: String, required: true })
-  password: string;
-
-  @Prop({ type: String })
-  pin: string;
+  address: string;
 
   @Prop({ type: String, required: true })
   phoneNumber: string;
 
-  @Prop({ type: Boolean, default: false })
-  isVerified: boolean;
+  @Prop({ type: String, required: true })
+  relationShip: string;
+
+  @Prop({ type: Types.ObjectId, required: true, ref: User.name })
+  user: Types.ObjectId;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const KinSchema = SchemaFactory.createForClass(Kin);

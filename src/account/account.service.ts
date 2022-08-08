@@ -5,10 +5,16 @@ import * as bcrypt from 'bcrypt';
 import * as jsonpatch from 'fast-json-patch';
 
 import { RegisterDto } from 'src/auth/dto/request/register.dto';
-import { User, UserDocument } from 'src/domain/schemas/user.schema';
+import { User, UserDocument } from 'src/domain/schemas/user/user.schema';
 import { IProfile } from 'src/domain/models/profile.model';
-import { Address, AddressDocument } from 'src/domain/schemas/address.schema';
+import {
+  Address,
+  AddressDocument,
+} from 'src/domain/schemas/user/address.schema';
 import { AddressDto } from './dto/request/address.dto';
+import { PersonDto } from 'src/auth/dto/request/person.dto';
+import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
+import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
 
 @Injectable()
 export class AccountService {
@@ -16,6 +22,8 @@ export class AccountService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Address.name)
     private readonly addressModel: Model<AddressDocument>,
+    @InjectModel(Kin.name)
+    private readonly kinModel: Model<KinDocument>,
   ) {}
 
   async findOne(email: string): Promise<UserDocument | null> {
@@ -54,6 +62,34 @@ export class AccountService {
     const pin = await this.hashedPassword(data.toString());
     const user = await this.userModel.findByIdAndUpdate({ id }, { pin });
     return user;
+  }
+
+  async validatePin(
+    id: Types.ObjectId,
+    pin: number,
+  ): Promise<UserDocument | null> {
+    let user = await this.userModel.findById(id);
+    if (user) {
+      const isValid = bcrypt.compare(pin.toString(), user.pin);
+      if (!isValid) user = null;
+    }
+
+    return user;
+  }
+
+  async updatePin(
+    user: UserDocument,
+    data: UpdatePinDto,
+  ): Promise<UserDocument | null> {
+    const isValid = bcrypt.compare(data.pin.toString(), user.pin);
+    if (isValid) {
+      const hashsedPin = await this.hashedPassword(data.newPin.toString());
+      return await this.userModel.findByIdAndUpdate(
+        user.id,
+        { pin: hashsedPin },
+        { new: true },
+      );
+    }
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {
@@ -113,6 +149,24 @@ export class AccountService {
           country: data.country,
           state: data.state,
           street: data.street,
+        }
+      : null;
+  }
+
+  async addKin(id: string, data: PersonDto): Promise<PersonDto> {
+    const kin = new this.kinModel({ ...data, user: id });
+    const savedKin = await kin.save();
+    return this.mapKin(savedKin);
+  }
+
+  private mapKin(data: KinDocument): PersonDto {
+    return data
+      ? {
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          middleName: data.middleName,
         }
       : null;
   }

@@ -1,0 +1,12 @@
+h1, h2, p {
+    font-family: "Google Sans", Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+}
+
+p {
+    color: red;
+}
+
+.heading {
+    display: flex;
+    color: #003399;
+}

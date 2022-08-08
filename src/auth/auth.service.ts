@@ -6,9 +6,10 @@ import { AccountService } from 'src/account/account.service';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
-import { UserDocument } from 'src/domain/schemas/user.schema';
+import { UserDocument } from 'src/domain/schemas/user/user.schema';
 import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
 import TokenDto from 'src/auth/dto/response/token-response.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly accountService: AccountService,
     private readonly jwtService: JwtService,
     private readonly otpService: OtpService,
+    private readonly emailService: EmailService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -85,6 +87,7 @@ export class AuthService {
       if (isVerified) {
         const user = await this.accountService.verify(otpVerify.userId);
         user.isVerified = true;
+        await this.emailService.sendWelcome(user);
         return user;
       }
     } catch (error) {

@@ -4,10 +4,13 @@ import {
   ForbiddenException,
   Get,
   HttpStatus,
+  NotAcceptableException,
   NotFoundException,
   Patch,
   Post,
+  Put,
   Req,
+  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -22,13 +25,20 @@ import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AccountService } from './account.service';
 import { AddressDto } from './dto/request/address.dto';
 import { NotFoundError } from 'rxjs';
+import { EmailService } from 'src/email/email.service';
+import { PersonDto } from 'src/auth/dto/request/person.dto';
+import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
+import { Types } from 'mongoose';
 
 @ApiTags('Account')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly emailService: EmailService,
+  ) {}
 
   @Patch('/profile')
   @ApiBody({ type: [PatchDto] })
@@ -93,6 +103,58 @@ export class AccountController {
       message: 'Address Updated successfully',
       data: address,
       status: HttpStatus.OK,
+    };
+  }
+
+  // @Get('/test')
+  // async test(@Req() req: Request) {
+  //   const user = req.user as ICurrentUser;
+  //   await this.emailService.sendWelcome(user);
+  //   return {
+  //     message: 'Address Updated successfully',
+  //     data: 'Done',
+  //     status: HttpStatus.OK,
+  //   };
+  // }
+
+  @Post('/kin')
+  @ApiBody({ type: PersonDto })
+  @ApiResponse(PersonDto, 201)
+  async addKin(
+    @Req() req: Request,
+    @Body() data: PersonDto,
+  ): Promise<BaseResponse<PersonDto>> {
+    const user = req.user as ICurrentUser;
+    const kin = await this.accountService.addKin(user.id, data);
+
+    return {
+      message: 'Next of kin added successfully',
+      data: kin,
+      status: HttpStatus.CREATED,
+    };
+  }
+
+  @Put('/transction-pin')
+  @ApiBody({ type: UpdatePinDto })
+  @ApiResponse(String, 200)
+  async updateTransactionPin(
+    @Req() req: Request,
+    @Body() data: UpdatePinDto,
+  ): Promise<BaseResponse<string>> {
+    const user = req.user as ICurrentUser;
+    const id = new Types.ObjectId(user.id);
+
+    const validateUser = await this.accountService.validatePin(id, data.newPin);
+    if (!validateUser) throw new NotAcceptableException('Pin not valid');
+
+    const updateUser = await this.accountService.updatePin(validateUser, data);
+    if (!updateUser)
+      throw new ServiceUnavailableException('Failed to update pin');
+
+    return {
+      message: 'Successful',
+      data: 'Pin updated successfully',
+      status: HttpStatus.CREATED,
     };
   }
 }
