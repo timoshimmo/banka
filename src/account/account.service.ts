@@ -14,7 +14,7 @@ import {
 import { AddressDto } from './dto/request/address.dto';
 import { PersonDto } from 'src/auth/dto/request/person.dto';
 import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
-import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
+import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 
 @Injectable()
 export class AccountService {
@@ -89,14 +89,39 @@ export class AccountService {
     return user;
   }
 
+  async validatepin(
+    id: Types.ObjectId,
+    pin: number,
+  ): Promise<UserDocument | null> {
+    let user = await this.userModel.findById(id);
+    if (user) {
+      const isValid = bcrypt.compare(pin.toString(), user.pin);
+      if (!isValid) user = null;
+    }
+
+    return user;
+  }
+
   async updateTransactionPin(
     user: UserDocument,
-    data: UpdatePinDto,
+    data: UpdateTransactionPinDto,
   ): Promise<UserDocument | null> {
     const hashsedPin = await this.hashedPassword(data.newPin.toString());
     return await this.userModel.findByIdAndUpdate(
       user.id,
       { transactionPin: hashsedPin },
+      { new: true },
+    );
+  }
+
+  async updatePin(
+    user: UserDocument,
+    data: UpdateTransactionPinDto,
+  ): Promise<UserDocument | null> {
+    const hashsedPin = await this.hashedPassword(data.newPin.toString());
+    return await this.userModel.findByIdAndUpdate(
+      user.id,
+      { pin: hashsedPin },
       { new: true },
     );
   }

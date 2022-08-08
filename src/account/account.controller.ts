@@ -27,9 +27,10 @@ import { AddressDto } from './dto/request/address.dto';
 import { NotFoundError } from 'rxjs';
 import { EmailService } from 'src/email/email.service';
 import { PersonDto } from 'src/auth/dto/request/person.dto';
-import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
+import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 import { Types } from 'mongoose';
-import PinDto from 'src/auth/dto/request/pin.dto';
+import TransactionPinDto from 'src/account/dto/request/transaction-pin.dto';
+import UpdatePinDto from './dto/request/update-pin.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
@@ -53,6 +54,31 @@ export class AccountController {
     return {
       message: 'User updated successfully',
       data: editedUser,
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Put('/pin')
+  @ApiBody({ type: UpdatePinDto })
+  @ApiResponse(String, 200)
+  async updatePin(
+    @Req() req: Request,
+    @Body() data: UpdatePinDto,
+  ): Promise<BaseResponse<string>> {
+    const user = req.user as ICurrentUser;
+    const id = new Types.ObjectId(user.id);
+
+    const validatedUser = await this.accountService.validatepin(id, data.pin);
+
+    if (!validatedUser) throw new NotAcceptableException('Pin not valid');
+
+    const updateUser = await this.accountService.updatePin(validatedUser, data);
+    if (!updateUser)
+      throw new InternalServerErrorException('Failed to update pin');
+
+    return {
+      message: 'Successful',
+      data: 'Pin updated successfully',
       status: HttpStatus.OK,
     };
   }
@@ -136,11 +162,11 @@ export class AccountController {
   }
 
   @Post('/transction-pin')
-  @ApiBody({ type: PinDto })
-  @ApiResponse(PinDto, 201)
+  @ApiBody({ type: TransactionPinDto })
+  @ApiResponse(TransactionPinDto, 201)
   async createTransactionPin(
     @Req() req: Request,
-    @Body() data: PinDto,
+    @Body() data: TransactionPinDto,
   ): Promise<BaseResponse<{ isCreated: boolean }>> {
     const user = req.user as ICurrentUser;
     const id = new Types.ObjectId(user.id);
@@ -164,18 +190,18 @@ export class AccountController {
   }
 
   @Put('/transction-pin')
-  @ApiBody({ type: UpdatePinDto })
+  @ApiBody({ type: UpdateTransactionPinDto })
   @ApiResponse(String, 200)
   async updateTransactionPin(
     @Req() req: Request,
-    @Body() data: UpdatePinDto,
+    @Body() data: UpdateTransactionPinDto,
   ): Promise<BaseResponse<string>> {
     const user = req.user as ICurrentUser;
     const id = new Types.ObjectId(user.id);
 
     const validatedUser = await this.accountService.validateTransactionPin(
       id,
-      data.newPin,
+      data.pin,
     );
     if (!validatedUser) throw new NotAcceptableException('Pin not valid');
 
