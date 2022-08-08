@@ -105,6 +105,7 @@ export class AuthService {
       pin: user.pin,
       middleName: user.middleName,
       id: user.id,
+      transactionPin: user.transactionPin,
     };
 
     return current;

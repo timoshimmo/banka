@@ -64,32 +64,41 @@ export class AccountService {
     return user;
   }
 
-  async validatePin(
+  async createTransactionPin(
+    id: Types.ObjectId,
+    data: number,
+  ): Promise<UserDocument | null> {
+    const transactionPin = await this.hashedPassword(data.toString());
+    const user = await this.userModel.findByIdAndUpdate(
+      { id },
+      { transactionPin },
+    );
+    return user;
+  }
+
+  async validateTransactionPin(
     id: Types.ObjectId,
     pin: number,
   ): Promise<UserDocument | null> {
     let user = await this.userModel.findById(id);
     if (user) {
-      const isValid = bcrypt.compare(pin.toString(), user.pin);
+      const isValid = bcrypt.compare(pin.toString(), user.transactionPin);
       if (!isValid) user = null;
     }
 
     return user;
   }
 
-  async updatePin(
+  async updateTransactionPin(
     user: UserDocument,
     data: UpdatePinDto,
   ): Promise<UserDocument | null> {
-    const isValid = bcrypt.compare(data.pin.toString(), user.pin);
-    if (isValid) {
-      const hashsedPin = await this.hashedPassword(data.newPin.toString());
-      return await this.userModel.findByIdAndUpdate(
-        user.id,
-        { pin: hashsedPin },
-        { new: true },
-      );
-    }
+    const hashsedPin = await this.hashedPassword(data.newPin.toString());
+    return await this.userModel.findByIdAndUpdate(
+      user.id,
+      { transactionPin: hashsedPin },
+      { new: true },
+    );
   }
 
   async update(id: string, data: any): Promise<UserDocument | null> {

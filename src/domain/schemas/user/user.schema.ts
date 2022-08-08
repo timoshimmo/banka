@@ -32,8 +32,8 @@ export class User {
   @Prop({ type: Boolean, default: false })
   isVerified: boolean;
 
-  @Prop({ type: Number })
-  transactionPin: number;
+  @Prop({ type: String })
+  transactionPin: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

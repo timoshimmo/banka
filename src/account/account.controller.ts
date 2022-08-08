@@ -4,13 +4,13 @@ import {
   ForbiddenException,
   Get,
   HttpStatus,
+  InternalServerErrorException,
   NotAcceptableException,
   NotFoundException,
   Patch,
   Post,
   Put,
   Req,
-  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -29,6 +29,7 @@ import { EmailService } from 'src/email/email.service';
 import { PersonDto } from 'src/auth/dto/request/person.dto';
 import UpdatePinDto from 'src/auth/dto/request/updatePin.dto';
 import { Types } from 'mongoose';
+import PinDto from 'src/auth/dto/request/pin.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
@@ -134,6 +135,34 @@ export class AccountController {
     };
   }
 
+  @Post('/transction-pin')
+  @ApiBody({ type: PinDto })
+  @ApiResponse(PinDto, 201)
+  async createTransactionPin(
+    @Req() req: Request,
+    @Body() data: PinDto,
+  ): Promise<BaseResponse<{ isCreated: boolean }>> {
+    const user = req.user as ICurrentUser;
+    const id = new Types.ObjectId(user.id);
+    if (user.transactionPin)
+      throw new NotAcceptableException('User already has a pin');
+    const updateUser = await this.accountService.createTransactionPin(
+      id,
+      data.pin,
+    );
+
+    if (!updateUser)
+      throw new InternalServerErrorException(
+        'Failed to create transaction pin',
+      );
+
+    return {
+      message: 'Transaction pin set successfully',
+      data: { isCreated: true },
+      status: HttpStatus.CREATED,
+    };
+  }
+
   @Put('/transction-pin')
   @ApiBody({ type: UpdatePinDto })
   @ApiResponse(String, 200)
@@ -144,17 +173,23 @@ export class AccountController {
     const user = req.user as ICurrentUser;
     const id = new Types.ObjectId(user.id);
 
-    const validateUser = await this.accountService.validatePin(id, data.newPin);
-    if (!validateUser) throw new NotAcceptableException('Pin not valid');
+    const validatedUser = await this.accountService.validateTransactionPin(
+      id,
+      data.newPin,
+    );
+    if (!validatedUser) throw new NotAcceptableException('Pin not valid');
 
-    const updateUser = await this.accountService.updatePin(validateUser, data);
+    const updateUser = await this.accountService.updateTransactionPin(
+      validatedUser,
+      data,
+    );
     if (!updateUser)
-      throw new ServiceUnavailableException('Failed to update pin');
+      throw new InternalServerErrorException('Failed to update pin');
 
     return {
       message: 'Successful',
       data: 'Pin updated successfully',
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
     };
   }
 }
