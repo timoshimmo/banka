@@ -12,6 +12,8 @@ import {
   AddressDocument,
 } from 'src/domain/schemas/user/address.schema';
 import { AddressDto } from './dto/request/address.dto';
+import { PersonDto } from 'src/auth/dto/request/person.dto';
+import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
 
 @Injectable()
 export class AccountService {
@@ -19,6 +21,8 @@ export class AccountService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Address.name)
     private readonly addressModel: Model<AddressDocument>,
+    @InjectModel(Kin.name)
+    private readonly kinModel: Model<KinDocument>,
   ) {}
 
   async findOne(email: string): Promise<UserDocument | null> {
@@ -116,6 +120,24 @@ export class AccountService {
           country: data.country,
           state: data.state,
           street: data.street,
+        }
+      : null;
+  }
+
+  async addKin(id: string, data: PersonDto): Promise<PersonDto> {
+    const kin = new this.kinModel({ ...data, user: id });
+    const savedKin = await kin.save();
+    return this.mapKin(savedKin);
+  }
+
+  private mapKin(data: KinDocument): PersonDto {
+    return data
+      ? {
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          middleName: data.middleName,
         }
       : null;
   }

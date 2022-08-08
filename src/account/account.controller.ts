@@ -23,6 +23,7 @@ import { AccountService } from './account.service';
 import { AddressDto } from './dto/request/address.dto';
 import { NotFoundError } from 'rxjs';
 import { EmailService } from 'src/email/email.service';
+import { PersonDto } from 'src/auth/dto/request/person.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
@@ -100,14 +101,31 @@ export class AccountController {
     };
   }
 
-  @Get('/test')
-  async test(@Req() req: Request) {
+  // @Get('/test')
+  // async test(@Req() req: Request) {
+  //   const user = req.user as ICurrentUser;
+  //   await this.emailService.sendWelcome(user);
+  //   return {
+  //     message: 'Address Updated successfully',
+  //     data: 'Done',
+  //     status: HttpStatus.OK,
+  //   };
+  // }
+
+  @Post('/kin')
+  @ApiBody({ type: PersonDto })
+  @ApiResponse(PersonDto, 201)
+  async addKin(
+    @Req() req: Request,
+    @Body() data: PersonDto,
+  ): Promise<BaseResponse<PersonDto>> {
     const user = req.user as ICurrentUser;
-    await this.emailService.sendWelcome(user);
+    const kin = await this.accountService.addKin(user.id, data);
+
     return {
-      message: 'Address Updated successfully',
-      data: 'Done',
-      status: HttpStatus.OK,
+      message: 'Next of kin added successfully',
+      data: kin,
+      status: HttpStatus.CREATED,
     };
   }
 }
