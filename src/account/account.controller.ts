@@ -26,11 +26,12 @@ import { AccountService } from './account.service';
 import { AddressDto } from './dto/request/address.dto';
 import { NotFoundError } from 'rxjs';
 import { EmailService } from 'src/email/email.service';
-import { PersonDto } from 'src/auth/dto/request/person.dto';
 import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 import { Types } from 'mongoose';
 import TransactionPinDto from 'src/account/dto/request/transaction-pin.dto';
 import UpdatePinDto from './dto/request/update-pin.dto';
+import UserBuilder from 'src/handlers/builders/user-builder';
+import KinDto from 'src/auth/dto/request/kin.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
@@ -51,9 +52,11 @@ export class AccountController {
   ): Promise<BaseResponse<UserResponseDto>> {
     const user = req.user as ICurrentUser;
     const editedUser = await this.accountService.update(user.id, profile);
+    const kin = await this.accountService.getKin(editedUser.id);
+    const data = UserBuilder.userResponse(editedUser, kin);
     return {
       message: 'User updated successfully',
-      data: editedUser,
+      data: data,
       status: HttpStatus.OK,
     };
   }
@@ -145,12 +148,12 @@ export class AccountController {
   // }
 
   @Post('/kin')
-  @ApiBody({ type: PersonDto })
-  @ApiResponse(PersonDto, 201)
+  @ApiBody({ type: KinDto })
+  @ApiResponse(KinDto, 201)
   async addKin(
     @Req() req: Request,
-    @Body() data: PersonDto,
-  ): Promise<BaseResponse<PersonDto>> {
+    @Body() data: KinDto,
+  ): Promise<BaseResponse<KinDto>> {
     const user = req.user as ICurrentUser;
     const kin = await this.accountService.addKin(user.id, data);
 
@@ -168,6 +171,7 @@ export class AccountController {
     @Req() req: Request,
     @Body() data: TransactionPinDto,
   ): Promise<BaseResponse<{ isCreated: boolean }>> {
+    console.log('User', req.user);
     const user = req.user as ICurrentUser;
     const id = new Types.ObjectId(user.id);
     if (user.transactionPin)
@@ -185,7 +189,7 @@ export class AccountController {
     return {
       message: 'Transaction pin set successfully',
       data: { isCreated: true },
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
     };
   }
 

@@ -26,11 +26,10 @@ import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { BaseResponse } from 'src/domain/dto/response/base-response';
 import TokenDto from 'src/auth/dto/response/token-response.dto';
 import UserResponseDto from 'src/auth/dto/response/user.response.dto';
-import { ICurrentUser } from 'src/domain/models/current-user.model';
 import { ApiResponse } from 'src/handlers/doc/api-response';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
-import { UserDocument } from 'src/domain/schemas/user/user.schema';
+import UserBuilder from 'src/handlers/builders/user-builder';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,7 +44,7 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiResponse(TokenDto, 200)
   async login(@Req() req: Request): Promise<BaseResponse<TokenDto>> {
-    const token = await this.authService.login(req.user as ICurrentUser);
+    const token = await this.authService.login(req.user as UserResponseDto);
     return {
       message: 'Logged in successfully',
       data: token,
@@ -63,7 +62,8 @@ export class AuthController {
     const isExist = await this.authService.exist(user.phoneNumber, user.email);
     if (isExist.isExist) throw new ConflictException(isExist.message);
     const createdUser = await this.authService.register(user);
-    const result = this.userResponse(createdUser);
+    const kin = await this.accountService.getKin(createdUser.id);
+    const result = UserBuilder.userResponse(createdUser, kin);
 
     return {
       message: 'User created succesfully',
@@ -82,22 +82,10 @@ export class AuthController {
     const verifiedUser = await this.authService.verifyOtp(otp);
     if (!verifiedUser)
       throw new ServiceUnavailableException('Unable to verify otp!');
-    const result = this.userResponse(verifiedUser);
-    return { message: 'Otp verified', data: result, status: HttpStatus.OK };
-  }
 
-  private userResponse(user: UserDocument) {
-    const result: UserResponseDto = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      isVerified: user.isVerified,
-      lastName: user.lastName,
-      middleName: user.middleName,
-      nickName: user.nickName,
-      phoneNumber: user.phoneNumber,
-    };
-    return result;
+    const kin = await this.accountService.getKin(verifiedUser.id);
+    const result = UserBuilder.userResponse(verifiedUser, kin);
+    return { message: 'Otp verified', data: result, status: HttpStatus.OK };
   }
 
   @Post('/pin')
@@ -110,7 +98,7 @@ export class AuthController {
     return {
       message: 'Pin created',
       data: 'Pin created successfully!',
-      status: HttpStatus.CREATED,
+      status: HttpStatus.OK,
     };
   }
 }

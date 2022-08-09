@@ -10,6 +10,8 @@ import { UserDocument } from 'src/domain/schemas/user/user.schema';
 import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
 import TokenDto from 'src/auth/dto/response/token-response.dto';
 import { EmailService } from 'src/email/email.service';
+import UserResponseDto from './dto/response/user.response.dto';
+import UserBuilder from 'src/handlers/builders/user-builder';
 
 @Injectable()
 export class AuthService {
@@ -27,11 +29,16 @@ export class AuthService {
     if (user) {
       const validatePassword = await bcrypt.compare(password, user.password);
       if (validatePassword) {
-        return this.mapUser(user);
+        return this.loggedInUser(user);
       }
     }
 
     return null;
+  }
+
+  private async loggedInUser(user: UserDocument): Promise<UserResponseDto> {
+    const kin = await this.accountService.getKin(user.id);
+    return UserBuilder.userResponse(user, kin);
   }
 
   async currentUser(email: string): Promise<ICurrentUser> {
@@ -41,8 +48,9 @@ export class AuthService {
     }
   }
 
-  async login(user: ICurrentUser): Promise<TokenDto> {
+  async login(user: UserResponseDto): Promise<TokenDto> {
     const payload = { username: user.email, sub: user.id };
+
     return {
       accessToken: this.jwtService.sign(payload),
       user: user,
