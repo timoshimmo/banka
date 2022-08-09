@@ -25,7 +25,7 @@ export default class Kin {
   phoneNumber: string;
 
   @Prop({ type: String, required: true })
-  relationShip: string;
+  relationship: string;
 
   @Prop({ type: Types.ObjectId, required: true, ref: User.name })
   user: Types.ObjectId;

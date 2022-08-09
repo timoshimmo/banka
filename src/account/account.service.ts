@@ -12,9 +12,10 @@ import {
   AddressDocument,
 } from 'src/domain/schemas/user/address.schema';
 import { AddressDto } from './dto/request/address.dto';
-import { PersonDto } from 'src/auth/dto/request/person.dto';
+
 import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
 import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
+import KinDto from 'src/auth/dto/request/kin.dto';
 
 @Injectable()
 export class AccountService {
@@ -60,7 +61,7 @@ export class AccountService {
     data: number,
   ): Promise<UserDocument | null> {
     const pin = await this.hashedPassword(data.toString());
-    const user = await this.userModel.findByIdAndUpdate({ id }, { pin });
+    const user = await this.userModel.findByIdAndUpdate(id, { pin });
     return user;
   }
 
@@ -70,8 +71,9 @@ export class AccountService {
   ): Promise<UserDocument | null> {
     const transactionPin = await this.hashedPassword(data.toString());
     const user = await this.userModel.findByIdAndUpdate(
-      { id },
-      { transactionPin },
+      id,
+      { transactionPin: transactionPin },
+      { new: true },
     );
     return user;
   }
@@ -187,13 +189,17 @@ export class AccountService {
       : null;
   }
 
-  async addKin(id: string, data: PersonDto): Promise<PersonDto> {
+  async addKin(id: string, data: KinDto): Promise<KinDto> {
     const kin = new this.kinModel({ ...data, user: id });
     const savedKin = await kin.save();
     return this.mapKin(savedKin);
   }
 
-  private mapKin(data: KinDocument): PersonDto {
+  async getKin(userId: string): Promise<KinDocument> {
+    return await this.kinModel.findOne({ user: userId });
+  }
+
+  private mapKin(data: KinDocument): KinDto {
     return data
       ? {
           email: data.email,
@@ -201,6 +207,8 @@ export class AccountService {
           lastName: data.lastName,
           phoneNumber: data.phoneNumber,
           middleName: data.middleName,
+          address: data.address,
+          relationship: data.relationship,
         }
       : null;
   }

@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ICurrentUser } from 'src/domain/models/current-user.model';
+
+import UserResponseDto from './user.response.dto';
 
 export default class TokenDto {
   @ApiProperty()
   accessToken: string;
 
   @ApiProperty()
-  user: ICurrentUser;
+  user: UserResponseDto;
 }
