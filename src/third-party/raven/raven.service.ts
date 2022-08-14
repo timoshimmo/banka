@@ -32,7 +32,7 @@ export class RavenService {
     } catch (error) {
       const err = error as AxiosError;
       if (err.response) {
-        this.logger.error(err.response.data);
+        this.logger.log(err.response.data);
       }
     }
     return bankDetail;
