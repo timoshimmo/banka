@@ -23,6 +23,8 @@ export class RavenService {
       this.logger.log('Generating wallet account');
       const response: AxiosResponse<RavenBaseResponseDto<AccountResponseDto>> =
         await this.httpService.axiosRef.post('/pwbt/generate_account', data);
+
+      this.logger.log(response);
       const responseData = response.data;
       if (responseData && responseData.status !== 'success') {
         this.logger.log(responseData);
@@ -33,7 +35,7 @@ export class RavenService {
     } catch (error) {
       const err = error as AxiosError;
       if (err.response) {
-        this.logger.log(err.response.data);
+        this.logger.error(err.response.data);
       }
     }
     return bankDetail;
