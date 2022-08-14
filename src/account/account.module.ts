@@ -7,10 +7,12 @@ import { AccountController } from './account.controller';
 import { Address, AddressSchema } from 'src/domain/schemas/user/address.schema';
 import { EmailModule } from 'src/email/email.module';
 import Kin, { KinSchema } from 'src/domain/schemas/user/kin.schema';
+import { ThirdPartyModule } from 'src/third-party/third-party.module';
 
 @Module({
   imports: [
     EmailModule,
+    ThirdPartyModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Address.name, schema: AddressSchema },
