@@ -16,6 +16,10 @@ import { AddressDto } from './dto/request/address.dto';
 import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
 import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 import KinDto from 'src/auth/dto/request/kin.dto';
+import { ICurrentUser } from 'src/domain/models/current-user.model';
+import BankDetailDto from './dto/response/bank-detail.dto';
+import { RavenService } from 'src/third-party/raven/raven.service';
+import GenerateAccountDto from 'src/third-party/raven/dto/request/generate-account.dto';
 
 @Injectable()
 export class AccountService {
@@ -25,6 +29,7 @@ export class AccountService {
     private readonly addressModel: Model<AddressDocument>,
     @InjectModel(Kin.name)
     private readonly kinModel: Model<KinDocument>,
+    private readonly ravenService: RavenService,
   ) {}
 
   async findOne(email: string): Promise<UserDocument | null> {
@@ -195,6 +200,20 @@ export class AccountService {
     return this.mapKin(savedKin);
   }
 
+  async updateKin(userId: string, data: any): Promise<KinDto | null> {
+    const kin = await this.kinModel.findOne({ user: userId });
+
+    if (kin) {
+      const result = jsonpatch.applyPatch(kin, data).newDocument;
+      const updated = await this.kinModel.findByIdAndUpdate(
+        kin.id,
+        { ...result },
+        { new: true },
+      );
+      return this.mapKin(updated);
+    }
+  }
+
   async getKin(userId: string): Promise<KinDocument> {
     return await this.kinModel.findOne({ user: userId });
   }
@@ -211,5 +230,10 @@ export class AccountService {
           relationship: data.relationship,
         }
       : null;
+  }
+
+  async generateAccount(user: ICurrentUser): Promise<BankDetailDto> {
+    const userDetails = GenerateAccountDto.build(user, 500);
+    return await this.ravenService.generateAccount(userDetails);
   }
 }

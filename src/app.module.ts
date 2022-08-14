@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { AccountModule } from './account/account.module';
 import { OtpModule } from './otp/otp.module';
 import { EmailModule } from './email/email.module';
+import { ThirdPartyModule } from './third-party/third-party.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { EmailModule } from './email/email.module';
     AccountModule,
     OtpModule,
     EmailModule,
+    ThirdPartyModule,
   ],
   controllers: [],
   providers: [AppService],

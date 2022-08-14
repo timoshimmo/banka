@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Req,
+  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -32,6 +33,7 @@ import TransactionPinDto from 'src/account/dto/request/transaction-pin.dto';
 import UpdatePinDto from './dto/request/update-pin.dto';
 import UserBuilder from 'src/handlers/builders/user-builder';
 import KinDto from 'src/auth/dto/request/kin.dto';
+import BankDetailDto from './dto/response/bank-detail.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
@@ -164,6 +166,22 @@ export class AccountController {
     };
   }
 
+  @Patch('/kin')
+  @ApiBody({ type: PatchDto })
+  @ApiResponse(KinDto, 201)
+  async updateKin(
+    @Req() req: Request,
+    @Body() data: PatchDto,
+  ): Promise<BaseResponse<KinDto>> {
+    const user = req.user as ICurrentUser;
+    const kin = await this.accountService.updateKin(user.id, data);
+    return {
+      message: 'Next of kin updated successfully',
+      data: kin,
+      status: HttpStatus.OK,
+    };
+  }
+
   @Post('/transction-pin')
   @ApiBody({ type: TransactionPinDto })
   @ApiResponse(TransactionPinDto, 201)
@@ -219,6 +237,23 @@ export class AccountController {
     return {
       message: 'Successful',
       data: 'Pin updated successfully',
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Get('/generate-bank-account')
+  @ApiResponse(BankDetailDto, 200)
+  async generateAccount(
+    @Req() req: Request,
+  ): Promise<BaseResponse<BankDetailDto>> {
+    const user = req.user as ICurrentUser;
+    const accountDetails = await this.accountService.generateAccount(user);
+    if (!accountDetails)
+      throw new ServiceUnavailableException('Failed to create account');
+
+    return {
+      message: 'Successful',
+      data: accountDetails,
       status: HttpStatus.OK,
     };
   }
