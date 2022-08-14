@@ -24,16 +24,13 @@ export class RavenService {
       const response: AxiosResponse<RavenBaseResponseDto<AccountResponseDto>> =
         await this.httpService.axiosRef.post('/pwbt/generate_account', data);
 
-      this.logger.log(response);
       const responseData = response.data;
-      if (responseData && responseData.status !== 'success') {
-        this.logger.log(responseData);
+      if (responseData && responseData.status === 'success') {
+        bankDetail = new BankDetailDto();
+        bankDetail.accountNumber = responseData.data.account_number;
+        bankDetail.bankName = responseData.data.bank;
       }
-      bankDetail = new BankDetailDto();
-      bankDetail.accountNumber = responseData.data.account_number;
-      bankDetail.bankName = responseData.data.bank;
     } catch (error) {
-      console.log(error);
       const err = error as AxiosError;
       if (err.response) {
         this.logger.error(err.response.data);

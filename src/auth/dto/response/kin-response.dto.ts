@@ -10,4 +10,19 @@ export default class KinResponseDto {
 
   @ApiProperty()
   lastName: string;
+
+  @ApiProperty()
+  middleName: string;
+
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  address: string;
+
+  @ApiProperty()
+  phoneNumber: string;
+
+  @ApiProperty()
+  relationship: string;
 }

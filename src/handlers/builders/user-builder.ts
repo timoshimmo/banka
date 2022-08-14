@@ -18,6 +18,11 @@ export default class UserBuilder {
         firstName: kin?.firstName,
         lastName: kin?.lastName,
         id: kin?.id,
+        address: kin?.address,
+        email: kin.email,
+        middleName: kin.middleName,
+        phoneNumber: kin.phoneNumber,
+        relationship: kin.relationship,
       },
     };
     return result;
