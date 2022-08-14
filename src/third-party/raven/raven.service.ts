@@ -33,6 +33,7 @@ export class RavenService {
       bankDetail.accountNumber = responseData.data.account_number;
       bankDetail.bankName = responseData.data.bank;
     } catch (error) {
+      console.log(error);
       const err = error as AxiosError;
       if (err.response) {
         this.logger.error(err.response.data);
