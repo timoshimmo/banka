@@ -218,6 +218,10 @@ export class AccountController {
     @Req() req: Request,
     @Body() data: UpdateTransactionPinDto,
   ): Promise<BaseResponse<string>> {
+    if (data.newPin === data.pin)
+      throw new NotAcceptableException(
+        'Your old pin and new cannot be the same',
+      );
     const user = req.user as ICurrentUser;
     const id = new Types.ObjectId(user.id);
 
