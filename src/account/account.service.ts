@@ -143,7 +143,7 @@ export class AccountService {
         nickName: user.nickName,
       };
 
-      const result = jsonpatch.applyPatch(profile, data).newDocument;
+      const result = jsonpatch.applyOperation(profile, data).newDocument;
       return await this.userModel.findByIdAndUpdate(
         id,
         { ...result },
@@ -204,7 +204,7 @@ export class AccountService {
     const kin = await this.kinModel.findOne({ user: userId });
 
     if (kin) {
-      const result = jsonpatch.applyPatch(kin, data).newDocument;
+      const result = jsonpatch.applyOperation(kin, data).newDocument;
       const updated = await this.kinModel.findByIdAndUpdate(
         kin.id,
         { ...result },
