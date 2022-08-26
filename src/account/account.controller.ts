@@ -138,16 +138,16 @@ export class AccountController {
     };
   }
 
-  // @Get('/test')
-  // async test(@Req() req: Request) {
-  //   const user = req.user as ICurrentUser;
-  //   await this.emailService.sendWelcome(user);
-  //   return {
-  //     message: 'Address Updated successfully',
-  //     data: 'Done',
-  //     status: HttpStatus.OK,
-  //   };
-  // }
+  @Get('/test')
+  async test(@Req() req: Request) {
+    const user = req.user as ICurrentUser;
+    await this.emailService.sendWelcome(user);
+    return {
+      message: 'Address Updated successfully',
+      data: 'Done',
+      status: HttpStatus.OK,
+    };
+  }
 
   @Post('/kin')
   @ApiBody({ type: KinDto })
