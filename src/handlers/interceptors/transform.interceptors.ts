@@ -18,17 +18,13 @@ export default class TransformInterceptor<T>
   ): Promise<Observable<Response<T>>> {
     return next
       .handle()
-      .pipe(map((value: BaseResponse<T>) => this.mapResponse(context, value)));
+      .pipe(map((value: BaseResponse<T>) => this.mapResponse(value)));
   }
 
-  private mapResponse(
-    context: ExecutionContext,
-    value: BaseResponse<T>,
-  ): Response<T> {
-    console.log(context.switchToHttp().getResponse());
+  private mapResponse(value: BaseResponse<T>): Response<T> {
     return {
       data: value.data,
-      statusCode: context.switchToHttp().getResponse().statusCode,
+      statusCode: value.status,
       message: value.message,
     };
   }

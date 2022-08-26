@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./templates/styles/welcome.css"/>
+    <link rel="stylesheet" href="./templates/styles/footer.css"/>
+    <title>Welcome</title>
+</head>
+<body>
+    <main>
+        <div id="body-wrapper">
+            <img width="65px" height="70px" class="logo" style="display: block; align: center" src= {{logo}} alt="banka-logo" />
+            <img style="display: block" class="banner" src= {{banner}} alt="banka-logo" />
+            <h1 style="display: block" class="text-bold title">You are welcome.</h1>
+            <div>
+                <p>
+                  Hi {{name}},
+                </p>
+                <p>
+                   Thank you for joining Banka.
+                </p>
+                <p>
+                  Please login to setup you login pin and transaction pin.
+                </p>
+                <p>
+                  Thanks,</br> Banka™ Support
+                </p>
+            </div>
+        </div>
+    </main>
+    {{!-- {{> footer }} --}}
+</body>
+</html>

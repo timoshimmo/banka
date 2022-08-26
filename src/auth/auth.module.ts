@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { OtpModule } from 'src/otp/otp.module';
 import LocatStrategy from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }),
       inject: [ConfigService],
     }),
+    EmailModule,
   ],
   providers: [AuthService, LocatStrategy, JwtStrategy],
   controllers: [AuthController],

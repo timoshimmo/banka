@@ -4,11 +4,14 @@ import { JwtService } from '@nestjs/jwt';
 
 import { AccountService } from 'src/account/account.service';
 import { ICurrentUser } from 'src/domain/models/current-user.model';
-import { RegisterDto } from 'src/domain/dto/request/auth/register.dto';
+import { RegisterDto } from 'src/auth/dto/request/register.dto';
 import { OtpService } from 'src/otp/otp.service';
-import { UserDocument } from 'src/domain/schemas/user.schema';
-import { OtpVerifyDto } from 'src/domain/dto/request/auth/otp-verify.dto';
-import TokenDto from 'src/domain/dto/response/token-response.dto';
+import { UserDocument } from 'src/domain/schemas/user/user.schema';
+import { OtpVerifyDto } from 'src/auth/dto/request/otp-verify.dto';
+import TokenDto from 'src/auth/dto/response/token-response.dto';
+import { EmailService } from 'src/email/email.service';
+import UserResponseDto from './dto/response/user.response.dto';
+import UserBuilder from 'src/handlers/builders/user-builder';
 
 @Injectable()
 export class AuthService {
@@ -18,51 +21,42 @@ export class AuthService {
     private readonly accountService: AccountService,
     private readonly jwtService: JwtService,
     private readonly otpService: OtpService,
+    private readonly emailService: EmailService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.accountService.findOne(email);
+    const user = await this.accountService.findOne(email.toLowerCase());
     if (user) {
       const validatePassword = await bcrypt.compare(password, user.password);
-      // const validatePin = user.pin
-      //   ? await bcrypt.compare(password, user.pin?.toString())
-      //   : '';
-
       if (validatePassword) {
-        const current: ICurrentUser = {
-          email: user.email,
-          firstName: user.firstName,
-          isVerified: user.isVerified,
-          lastName: user.lastName,
-          phoneNumber: user.phoneNumber,
-          id: user.id,
-        };
-        return current;
+        return this.loggedInUser(user);
+      } else {
+        const validatedPin = await bcrypt.compare(password, user.pin);
+        if (validatedPin) return this.loggedInUser(user);
       }
     }
 
     return null;
   }
 
+  private async loggedInUser(user: UserDocument): Promise<UserResponseDto> {
+    const kin = await this.accountService.getKin(user.id);
+    return UserBuilder.userResponse(user, kin);
+  }
+
   async currentUser(email: string): Promise<ICurrentUser> {
     const user = await this.accountService.findOne(email);
     if (user && user.isVerified) {
-      const current: ICurrentUser = {
-        email: user.email,
-        firstName: user.firstName,
-        isVerified: user.isVerified,
-        lastName: user.lastName,
-        phoneNumber: user.phoneNumber,
-        id: user.id,
-      };
-      return current;
+      return this.mapUser(user);
     }
   }
 
-  async login(user: ICurrentUser): Promise<TokenDto> {
+  async login(user: UserResponseDto): Promise<TokenDto> {
     const payload = { username: user.email, sub: user.id };
+
     return {
       accessToken: this.jwtService.sign(payload),
+      user: user,
     };
   }
 
@@ -94,7 +88,10 @@ export class AuthService {
     return { isExist: false, message: '' };
   }
 
-  async verifyOtp(otpVerify: OtpVerifyDto): Promise<UserDocument | null> {
+  async verifyOtp(
+    otpVerify: OtpVerifyDto,
+    domain: string,
+  ): Promise<UserDocument | null> {
     try {
       const isVerified = await this.otpService.verifyOtp(
         otpVerify.pin,
@@ -104,10 +101,27 @@ export class AuthService {
       if (isVerified) {
         const user = await this.accountService.verify(otpVerify.userId);
         user.isVerified = true;
+        await this.emailService.sendWelcome(user, domain);
         return user;
       }
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  private mapUser(user: UserDocument): ICurrentUser {
+    const current: ICurrentUser = {
+      email: user.email,
+      firstName: user.firstName,
+      isVerified: user.isVerified,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      pin: user.pin,
+      middleName: user.middleName,
+      id: user.id,
+      transactionPin: user.transactionPin,
+    };
+
+    return current;
   }
 }
