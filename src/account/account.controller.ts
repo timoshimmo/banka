@@ -141,7 +141,8 @@ export class AccountController {
   @Get('/test')
   async test(@Req() req: Request) {
     const user = req.user as ICurrentUser;
-    await this.emailService.sendWelcome(user);
+    const domain = `${req.protocol}://${req.get('Host')}`;
+    await this.emailService.sendWelcome(user, domain);
     return {
       message: 'Address Updated successfully',
       data: 'Done',

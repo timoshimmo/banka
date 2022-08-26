@@ -8,7 +8,11 @@ export class EmailService {
 
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendWelcome(user: ICurrentUser): Promise<void> {
+  async sendWelcome(user: ICurrentUser, domain: string): Promise<void> {
+    const logoPath = domain + '/images/';
+    const logo = logoPath + 'logo.svg';
+    const banner = logoPath + 'waitlist-banner.svg';
+
     try {
       await this.mailerService.sendMail({
         to: user.email,
@@ -17,6 +21,8 @@ export class EmailService {
         template: './welcome',
         context: {
           name: user.firstName + ' ' + user.lastName,
+          logo,
+          banner,
         },
       });
     } catch (error) {

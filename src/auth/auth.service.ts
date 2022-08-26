@@ -88,7 +88,10 @@ export class AuthService {
     return { isExist: false, message: '' };
   }
 
-  async verifyOtp(otpVerify: OtpVerifyDto): Promise<UserDocument | null> {
+  async verifyOtp(
+    otpVerify: OtpVerifyDto,
+    domain: string,
+  ): Promise<UserDocument | null> {
     try {
       const isVerified = await this.otpService.verifyOtp(
         otpVerify.pin,
@@ -98,7 +101,7 @@ export class AuthService {
       if (isVerified) {
         const user = await this.accountService.verify(otpVerify.userId);
         user.isVerified = true;
-        await this.emailService.sendWelcome(user);
+        await this.emailService.sendWelcome(user, domain);
         return user;
       }
     } catch (error) {

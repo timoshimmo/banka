@@ -77,9 +77,11 @@ export class AuthController {
   @ApiResponse(UserResponseDto, 200)
   @ApiServiceUnavailableResponse({ description: 'Unable to verify otp!' })
   async verify(
+    @Req() req: Request,
     @Body() otp: OtpVerifyDto,
   ): Promise<BaseResponse<UserResponseDto>> {
-    const verifiedUser = await this.authService.verifyOtp(otp);
+    const domain = `${req.protocol}://${req.get('Host')}`;
+    const verifiedUser = await this.authService.verifyOtp(otp, domain);
     if (!verifiedUser)
       throw new ServiceUnavailableException('Unable to verify otp!');
 
