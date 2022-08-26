@@ -30,6 +30,9 @@ export class AuthService {
       const validatePassword = await bcrypt.compare(password, user.password);
       if (validatePassword) {
         return this.loggedInUser(user);
+      } else {
+        const validatedPin = await bcrypt.compare(password, user.pin);
+        if (validatedPin) return this.loggedInUser(user);
       }
     }
 
