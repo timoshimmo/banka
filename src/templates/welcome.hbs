@@ -1,87 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./templates/styles/style.css"/>
+    <link rel="stylesheet" href="./templates/styles/welcome.css"/>
     <link rel="stylesheet" href="./templates/styles/footer.css"/>
-
-    <style type="text/css">
-    @import url('https://fonts.googleapis.com/css2?family=Bitter:wght@900&display=swap');
-    p, h1, h2, h3, h4, ol, li, ul { font-family: 'Bitter', serif; }
-</style>
-  </head>
-  <body style="background-color: #f5f5f5">
-    <main
-      style="container-lg background-color: white"
-      class="m-5 d-flex justify-items-center"
-    >
-      <div class="d-flex flex-column align-items-center">
-        <div class="heading">
-          <img src="http://localhost:3000/images/bankaLogo.svg" width="40px" height="35px"  />
-          <p>banka.</p>
+    <title>Welcome</title>
+</head>
+<body>
+    <main>
+        <div id="body-wrapper">
+            <img width="65px" height="70px" class="logo" style="display: block; align: center" src= {{logo}} alt="banka-logo" />
+            <img style="display: block" class="banner" src= {{banner}} alt="banka-logo" />
+            <h1 style="display: block" class="text-bold title">You are welcome.</h1>
+            <div>
+                <p>
+                  Hi {{name}},
+                </p>
+                <p>
+                   Thank you for joining Banka.
+                </p>
+                <p>
+                  Please login to setup you login pin and transaction pin.
+                </p>
+                <p>
+                  Thanks,</br> Banka™ Support
+                </p>
+            </div>
         </div>
-        <h2 class="h2"
-          style="
-            color: #64748b;
-            font-weight: 500;
-          "
-        >
-          You are welcome
-        </h2>
-        <p
-          class="mt-4"
-          style="
-            color: #475569;
-          "
-        >
-          Hi {{name}}
-        </p>
-        <p
-          class="mt-3"
-          style="
-            color: #475569;
-            font-family: 'Outfit', sans-serif;
-         
-          "
-        >
-          Thank you for joining Banka.
-        </p>
-        <p
-          class="mt-3"
-          style="
-            color: #475569;
-            font-family: 'Outfit', sans-serif;
-            font-style: normal;
-          "
-        >
-          Please complete your kyc by going to setting
-        </p>
-        <p
-          class="mt-4"
-          style="
-            color: #475569;
-            font-family: 'Outfit', sans-serif;
-            font-style: normal;
-          "
-        >
-          Thanks
-        </p>
-        <p
-          style="
-            color: #475569;
-            font-family: 'Outfit', sans-serif;
-            font-style: normal;
-          "
-        >
-          Banka Support
-        </p>
-      </div>
     </main>
-    {{> footer }}
-  </body>
+    {{!-- {{> footer }} --}}
+</body>
 </html>
