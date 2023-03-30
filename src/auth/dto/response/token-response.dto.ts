@@ -7,5 +7,8 @@ export default class TokenDto {
   accessToken: string;
 
   @ApiProperty()
-  user: UserResponseDto;
+  user: any;
+
+  @ApiProperty()
+  message: string;
 }

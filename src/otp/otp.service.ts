@@ -32,6 +32,7 @@ export class OtpService {
         await this.httpService.axiosRef.post('/sms/otp/send', requestData);
 
       const responseData = response.data;
+      this.logger.log(responseData);
       if (responseData && responseData.status === 200) {
         this.logger.log('OTP sent!');
         await this.create(userId, responseData.pinId);

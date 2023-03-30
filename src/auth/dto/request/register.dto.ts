@@ -24,6 +24,14 @@ export class RegisterDto extends PersonDto {
   nickName: string;
 
   @IsString()
+  @ApiProperty()
+  anchorId: string;
+
+  @IsString()
+  @ApiProperty()
+  walletId: string;
+
+  @IsString()
   @ApiProperty({ required: false })
   @IsOptional()
   referralCode?: string;

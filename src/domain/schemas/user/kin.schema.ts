@@ -4,7 +4,7 @@ import { User } from './user.schema';
 
 export type KinDocument = Kin & Document;
 
-@Schema()
+@Schema({ versionKey: false })
 export default class Kin {
   @Prop({ type: String, required: true })
   firstName: string;

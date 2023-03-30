@@ -8,6 +8,7 @@ import { join } from 'path';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { AnchorModule } from './anchor/anchor.module';
 import { AccountModule } from './account/account.module';
 import { OtpModule } from './otp/otp.module';
 import { EmailModule } from './email/email.module';
@@ -67,6 +68,7 @@ import { ThirdPartyModule } from './third-party/third-party.module';
     AccountModule,
     OtpModule,
     EmailModule,
+    AnchorModule,
     ThirdPartyModule,
   ],
   controllers: [],

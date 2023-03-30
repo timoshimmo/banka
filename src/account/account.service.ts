@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -12,7 +12,8 @@ import {
   AddressDocument,
 } from 'src/domain/schemas/user/address.schema';
 import { AddressDto } from './dto/request/address.dto';
-
+import { AnchorService } from 'src/anchor/anchor.service';
+import { CashCardService } from 'src/cashcard/cashcard.service';
 import Kin, { KinDocument } from 'src/domain/schemas/user/kin.schema';
 import UpdateTransactionPinDto from 'src/account/dto/request/update-transaction-pin.dto';
 import KinDto from 'src/auth/dto/request/kin.dto';
@@ -20,9 +21,14 @@ import { ICurrentUser } from 'src/domain/models/current-user.model';
 import BankDetailDto from './dto/response/bank-detail.dto';
 import { RavenService } from 'src/third-party/raven/raven.service';
 import GenerateAccountDto from 'src/third-party/raven/dto/request/generate-account.dto';
+import { WalletRequestDto } from 'src/account/dto/request/wallet.request.dto';
+import { WalletResponseDto } from 'src/account/dto/response/wallet.response.dto';
+import { CashCardRequestDto } from 'src/account/dto/request/cashcard.request.dto';
 
 @Injectable()
 export class AccountService {
+
+  private readonly logger = new Logger(AccountService.name);
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Address.name)
@@ -30,6 +36,8 @@ export class AccountService {
     @InjectModel(Kin.name)
     private readonly kinModel: Model<KinDocument>,
     private readonly ravenService: RavenService,
+    private readonly anchorService: AnchorService,
+    private readonly cashcardService: CashCardService,
   ) {}
 
   async findOne(email: string): Promise<UserDocument | null> {
@@ -143,7 +151,7 @@ export class AccountService {
         nickName: user.nickName,
       };
 
-      const result = jsonpatch.applyOperation(profile, data).newDocument;
+      const result = jsonpatch.default.applyOperation(profile, data).newDocument;
       return await this.userModel.findByIdAndUpdate(
         id,
         { ...result },
@@ -151,6 +159,23 @@ export class AccountService {
       );
     }
   }
+
+  
+  async generateCashCard(body: CashCardRequestDto): Promise<any> {
+    return this.cashcardService.generateCashCard(body);
+
+  }
+
+  async getCashCard(cardPin: string): Promise<any> {
+    return this.cashcardService.getCashCard(cardPin);
+
+  }
+
+  async getCashCardByUser(userid: string): Promise<Array<any>> {
+    return this.cashcardService.getCashCardByUser(userid);
+
+  }
+
 
   async createAddress(id: string, data: AddressDto): Promise<AddressDto> {
     const address = new this.addressModel({ ...data, user: id });
@@ -173,7 +198,7 @@ export class AccountService {
         street: address.street,
       };
 
-      const result = jsonpatch.applyPatch(preparedAddress, data).newDocument;
+      const result = jsonpatch.default.applyPatch(preparedAddress, data).newDocument;
       const updateAddress = await this.addressModel.findOneAndUpdate(
         { user: id },
         { ...result },
@@ -182,6 +207,7 @@ export class AccountService {
       return this.mapAddress(updateAddress);
     }
   }
+
 
   private mapAddress(data: AddressDocument): AddressDto {
     return data
@@ -204,7 +230,7 @@ export class AccountService {
     const kin = await this.kinModel.findOne({ user: userId });
 
     if (kin) {
-      const result = jsonpatch.applyOperation(kin, data).newDocument;
+      const result = jsonpatch.default.applyOperation(kin, data).newDocument;
       const updated = await this.kinModel.findByIdAndUpdate(
         kin.id,
         { ...result },
@@ -230,6 +256,37 @@ export class AccountService {
           relationship: data.relationship,
         }
       : null;
+  }
+
+  async createWalletAccount(
+    id: string,
+    data: WalletRequestDto
+  ): Promise<WalletResponseDto | null> {
+
+    try {
+
+      const result = await this.anchorService.createWalletAccount(id, data);
+      return result;
+    }
+    catch(error) {
+      this.logger.error(error);
+    }
+
+  }
+
+  async getWalletAccount(
+    id: string
+  ): Promise<WalletResponseDto | null> {
+
+    try {
+
+      const result = await this.anchorService.getWalletAccount(id);
+      return result;
+    }
+    catch(error) {
+      this.logger.error(error);
+    }
+
   }
 
   async generateAccount(user: ICurrentUser): Promise<BankDetailDto> {

@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ versionKey: false })
 export class User {
   @Prop({ type: String, required: true })
   firstName: string;
@@ -32,8 +32,17 @@ export class User {
   @Prop({ type: Boolean, default: false })
   isVerified: boolean;
 
+  @Prop(String)
+  anchorId: string;
+
+  @Prop(String)
+  walletId: string;
+
   @Prop({ type: String })
   transactionPin: string;
+
+  @Prop({ type: Boolean, default: false })
+  hasTransactionPin: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

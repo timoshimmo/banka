@@ -1,9 +1,10 @@
 import UserResponseDto from 'src/auth/dto/response/user.response.dto';
-import { KinDocument } from 'src/domain/schemas/user/kin.schema';
+//import { KinDocument } from 'src/domain/schemas/user/kin.schema';
 import { UserDocument } from 'src/domain/schemas/user/user.schema';
+//kin: KinDocument
 
 export default class UserBuilder {
-  static userResponse(user: UserDocument, kin: KinDocument): UserResponseDto {
+  static userResponse(user: UserDocument): UserResponseDto {
     const result: UserResponseDto = {
       id: user.id,
       email: user.email,
@@ -13,17 +14,9 @@ export default class UserBuilder {
       middleName: user.middleName,
       nickName: user.nickName,
       phoneNumber: user.phoneNumber,
-      hasTransactionPin: user.transactionPin ? true : false,
-      nextOfKin: {
-        firstName: kin?.firstName,
-        lastName: kin?.lastName,
-        id: kin?.id,
-        address: kin?.address,
-        email: kin.email,
-        middleName: kin.middleName,
-        phoneNumber: kin.phoneNumber,
-        relationship: kin.relationship,
-      },
+      anchorId: user.anchorId,
+      walletId: user.walletId,
+      hasTransactionPin: user.transactionPin ? true : false
     };
     return result;
   }

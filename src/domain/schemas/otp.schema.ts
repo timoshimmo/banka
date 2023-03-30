@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 
 export type OtpDocument = Otp & Document;
 
-@Schema()
+@Schema({ versionKey: false })
 export class Otp {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId })
   userId: mongoose.Types.ObjectId;

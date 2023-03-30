@@ -9,6 +9,7 @@ import {
   NotFoundException,
   Patch,
   Post,
+  Param,
   Put,
   Req,
   ServiceUnavailableException,
@@ -34,10 +35,14 @@ import UpdatePinDto from './dto/request/update-pin.dto';
 import UserBuilder from 'src/handlers/builders/user-builder';
 import KinDto from 'src/auth/dto/request/kin.dto';
 import BankDetailDto from './dto/response/bank-detail.dto';
+import { WalletRequestDto } from 'src/account/dto/request/wallet.request.dto';
+import { WalletResponseDto } from 'src/account/dto/response/wallet.response.dto';
+import { CashCardRequestDto } from 'src/account/dto/request/cashcard.request.dto';
+import { CashCardResponseDto } from 'src/account/dto/response/cashcard.response.dto';
 
 @ApiTags('Account')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 @Controller('account')
 export class AccountController {
   constructor(
@@ -54,8 +59,8 @@ export class AccountController {
   ): Promise<BaseResponse<UserResponseDto>> {
     const user = req.user as ICurrentUser;
     const editedUser = await this.accountService.update(user.id, profile);
-    const kin = await this.accountService.getKin(editedUser.id);
-    const data = UserBuilder.userResponse(editedUser, kin);
+    //const kin = await this.accountService.getKin(editedUser.id);
+    const data = UserBuilder.userResponse(editedUser);
     return {
       message: 'User updated successfully',
       data: data,
@@ -104,6 +109,49 @@ export class AccountController {
     return {
       message: 'Address added successfully',
       data: address,
+      status: HttpStatus.CREATED,
+    };
+  }
+
+  @Post('/cashcard')
+  @ApiBody({ type: CashCardRequestDto })
+  @ApiResponse(CashCardResponseDto, 201)
+  async generateCashCard(
+    @Body() data: CashCardRequestDto,
+  ): Promise<BaseResponse<any>> {
+   
+    const result = await this.accountService.generateCashCard(data);
+    return {
+      message: 'Cash Card generated successfully',
+      data: result,
+      status: HttpStatus.CREATED,
+    };
+  }
+
+  @Get('/cashcard/:cardpin')
+  @ApiResponse(CashCardResponseDto, 201)
+  async getCashCard(@Param('cardpin') cardpin: string): Promise<BaseResponse<CashCardResponseDto>> {
+
+    console.log("Controller Pin:", cardpin);
+   
+    const result = await this.accountService.getCashCard(cardpin);
+    if (!result) throw new NotFoundError('Cash Card not found');
+    return {
+      message: 'Cash Card fetched successfully',
+      data: result,
+      status: HttpStatus.CREATED,
+    };
+  }
+
+  @Get('/cashcard/user/:userid')
+  @ApiResponse(Array<any>, 201)
+  async getCashCardByUser(@Param('userid') userid: string): Promise<BaseResponse<Array<any>>> {
+   
+    const result = await this.accountService.getCashCardByUser(userid);
+    if (!result) throw new NotFoundError('Cash Cards not found');
+    return {
+      message: 'Cash Card fetched successfully',
+      data: result,
       status: HttpStatus.CREATED,
     };
   }
@@ -245,6 +293,32 @@ export class AccountController {
       status: HttpStatus.OK,
     };
   }
+
+  
+  @Post('/wallet/:id')
+  @ApiBody({ type: WalletRequestDto })
+  @ApiResponse(WalletResponseDto, 200)
+  async createWalletAccount(
+    @Param('id') id: string,
+    @Body() walletData: WalletRequestDto
+  ): Promise<BaseResponse<WalletResponseDto>> {
+
+    const result = await this.accountService.createWalletAccount(id, walletData);
+    return { message: 'Wallet created successfully', data: result, status: HttpStatus.OK };
+
+  }
+
+  @Get('/wallet/:id')
+  @ApiResponse(WalletResponseDto, 200)
+  async registerAnchorCustomer(
+    @Param('id') id: string
+  ): Promise<BaseResponse<WalletResponseDto>> {
+
+    const result = await this.accountService.getWalletAccount(id);
+    return { message: 'Wallet retrieved successfully', data: result, status: HttpStatus.OK };
+
+  }
+
 
   @Get('/generate-bank-account')
   @ApiResponse(BankDetailDto, 200)

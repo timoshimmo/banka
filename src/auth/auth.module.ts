@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AccountModule } from 'src/account/account.module';
+import { AnchorModule } from 'src/anchor/anchor.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { OtpModule } from 'src/otp/otp.module';
@@ -15,6 +16,7 @@ import { EmailModule } from 'src/email/email.module';
     AccountModule,
     OtpModule,
     PassportModule,
+    AnchorModule,
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -4,7 +4,7 @@ import { User } from './user.schema';
 
 export type AddressDocument = Address & Document;
 
-@Schema()
+@Schema({ versionKey: false })
 export class Address {
   @Prop({ type: String, required: true })
   country: string;
